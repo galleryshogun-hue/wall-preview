@@ -1561,6 +1561,18 @@
     });
   }
 
+  /* the same URL is often already in the browser cache from a plain
+     (non-crossOrigin) <img> tag used for on-screen display; reusing
+     that cached response for a crossOrigin="anonymous" request makes
+     some browsers fail the load entirely. A cache-busting query param
+     forces a fresh, CORS-checked fetch so canvas export doesn't silently
+     skip the artwork. */
+  function loadImageForExport(src){
+    if(!src || src.indexOf("data:")===0) return loadImage(src);
+    var sep = src.indexOf("?")>=0 ? "&" : "?";
+    return loadImage(src + sep + "_cb=" + Date.now());
+  }
+
   exportBtn.addEventListener("click", function(){
     exportToast.textContent = "در حال ساخت تصویر...";
     var canvas = document.createElement("canvas");
@@ -1577,7 +1589,7 @@
       var chain = Promise.resolve();
       ordered.forEach(function(f){
         chain = chain.then(function(){
-          return loadImage(f.src).catch(function(){ tainted = true; return null; }).then(function(img){
+          return loadImageForExport(f.src).catch(function(){ tainted = true; return null; }).then(function(img){
             var wPx = f.wCm*canvasPxPerCm, hPx = f.hCm*canvasPxPerCm;
             var cx = (f.xPct/100)*roomNaturalW, cy=(f.yPct/100)*roomNaturalH;
             var m = mat(f.matKey);
