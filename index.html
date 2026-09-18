@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پیش‌نمایش دیوار شوگون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Arabic:wght@400;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5efe2;
+    --surface:#fffdf8;
+    --surface-2:#efe4cd;
+    --ink:#241f18;
+    --ink-soft:#7d7260;
+    --accent:#a97e49;
+    --accent-strong:#8a5f30;
+    --accent-ink:#fffaf0;
+    --line:#e3d8bf;
+    --danger:#a84a3a;
+    --shadow:rgba(36,31,24,.18);
+    --radius:14px;
+    color-scheme: light;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg:#181410;
+      --surface:#221d16;
+      --surface-2:#2c2519;
+      --ink:#f2e9d7;
+      --ink-soft:#b5a98f;
+      --accent:#cf9e5f;
+      --accent-strong:#e2b676;
+      --accent-ink:#211a10;
+      --line:#3a3020;
+      --shadow:rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181410;
+    --surface:#221d16;
+    --surface-2:#2c2519;
+    --ink:#f2e9d7;
+    --ink-soft:#b5a98f;
+    --accent:#cf9e5f;
+    --accent-strong:#e2b676;
+    --accent-ink:#211a10;
+    --line:#3a3020;
+    --shadow:rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Vazirmatn","Segoe UI",Tahoma,sans-serif;
+    direction:rtl;
+    padding-inline:16px;
+    padding-block:20px 48px;
+  }
+  h1,h2,h3{
+    font-family:"Noto Serif Arabic","Vazirmatn",serif;
+    font-weight:700;
+    margin:0;
+    text-wrap:balance;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* header */
+  .brand{
+    display:flex;align-items:center;gap:14px;
+    margin-bottom:6px;
+  }
+  .brand-mark{
+    width:46px;height:46px;border-radius:50%;
+    background:linear-gradient(155deg,var(--accent),var(--accent-strong));
+    color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Noto Serif Arabic",serif;font-size:22px;font-weight:700;
+    flex:none;
+    box-shadow:0 6px 16px var(--shadow);
+  }
+  .brand h1{font-size:clamp(22px,3vw,28px);}
+  .brand p{margin:2px 0 0;color:var(--ink-soft);font-size:14px;}
+  header.top{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+  a.site-link{
+    color:var(--accent-strong);text-decoration:none;font-size:13px;
+    border:1px solid var(--line);padding:8px 14px;border-radius:999px;
+    white-space:nowrap;background:var(--surface);
+  }
+  a.site-link:hover{border-color:var(--accent);}
+
+  /* stepper */
+  .steps{
+    display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;
+  }
+  .step{
+    flex:1 1 180px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .step .num{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:var(--surface-2);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;
+  }
+  .step.active .num{background:var(--accent);color:var(--accent-ink);}
+  .step .txt{font-size:13px;color:var(--ink-soft);line-height:1.5;}
+  .step .txt b{display:block;color:var(--ink);font-size:14px;}
+
+  /* layout */
+  .layout{
+    display:grid;
+    grid-template-columns:1fr 340px;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+  }
+  .panel + .panel{margin-top:16px;}
+  .panel h2{font-size:16px;margin-bottom:4px;}
+  .panel .hint{color:var(--ink-soft);font-size:12.5px;margin:0 0 12px;line-height:1.6;}
+
+  /* upload dropzone */
+  .dropzone{
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+    padding:16px;
+    text-align:center;
+    cursor:pointer;
+    color:var(--ink-soft);
+    font-size:13px;
+    background:var(--surface-2);
+    transition:border-color .15s, background .15s;
+    margin-bottom:10px;
+  }
+  .dropzone:hover, .dropzone.drag{border-color:var(--accent);color:var(--ink);}
+  .dropzone svg{width:26px;height:26px;margin-bottom:6px;color:var(--accent-strong);}
+
+  /* stage */
+  .stage-shell{
+    position:relative;
+    border-radius:12px;
+    overflow:hidden;
+    background:#000;
+    box-shadow:0 10px 30px var(--shadow);
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    background-size:cover;
+    background-position:center;
+    touch-action:none;
+    user-select:none;
+  }
+  .stage .sample-tag{
+    position:absolute; top:10px; inset-inline-start:10px;
+    background:rgba(20,17,12,.6); color:#fbf3e2;
+    font-size:11.5px; padding:5px 10px; border-radius:999px;
+    pointer-events:none; z-index:50; backdrop-filter:blur(2px);
+  }
+
+  /* fullscreen toggle for the wall stage — mainly for small phone screens */
+  .fs-toggle{
+    position:absolute; top:10px; inset-inline-end:10px;
+    z-index:500;
+    width:36px;height:36px;
+    border:none; border-radius:999px;
+    background:rgba(20,17,12,.6); color:#fbf3e2;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer; padding:0;
+    backdrop-filter:blur(2px);
+  }
+  .fs-toggle svg{width:17px;height:17px;}
+  .stage-shell.fs{
+    position:fixed; inset:0; z-index:3000;
+    border-radius:0;
+    display:flex; align-items:center; justify-content:center;
+    background:#000;
+    box-shadow:none;
+  }
+  .stage-shell.fs .stage{
+    max-width:100vw; max-height:100vh;
+  }
+  body.stage-fs-open{overflow:hidden;}
+
+  @media (max-width:640px){
+    body{padding-inline:10px;}
+    .stage-shell{margin-inline:-16px; border-radius:0;}
+    .frame .handle{width:32px;height:32px;font-size:15px;}
+    .handle-resize{bottom:-16px;inset-inline-start:-16px;}
+    .handle-rotate{top:-42px;}
+    .handle-rotate::after{top:28px;height:14px;}
+    .handle-delete{top:-16px;inset-inline-end:-16px;}
+  }
+
+  .frame{
+    position:absolute;
+    cursor:grab;
+    filter:drop-shadow(0 10px 18px var(--shadow));
+  }
+  .frame:active{cursor:grabbing;}
+  .frame .mat{
+    width:100%;height:100%;
+    padding:5.5%;
+    box-sizing:border-box;
+    border-radius:2px;
+    box-shadow:
+      inset 1.5px 1.5px 2px rgba(255,255,255,.4),
+      inset -2px -2px 4px rgba(0,0,0,.4),
+      inset 0 0 0 1px rgba(0,0,0,.18);
+  }
+  .frame .art{
+    width:100%;height:100%;
+    background:#f8f4e9;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .frame .art img,.frame .art svg{
+    width:100%;height:100%;object-fit:contain;display:block;
+  }
+  .frame.selected{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px;}
+  .frame .handle{
+    position:absolute;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--accent-ink);
+    display:none;
+    align-items:center;justify-content:center;
+    font-size:13px;
+    box-shadow:0 3px 8px rgba(0,0,0,.35);
+    cursor:pointer;
+    touch-action:none;
+  }
+  .frame.selected .handle{display:flex;}
+  .handle-resize{bottom:-13px;inset-inline-start:-13px;cursor:nwse-resize;}
+  .handle-rotate{top:-38px;left:50%;transform:translateX(-50%);cursor:grab;}
+  .handle-rotate::after{content:"";position:absolute;top:26px;left:50%;width:1px;height:12px;background:var(--accent);}
+  .handle-delete{top:-13px;inset-inline-end:-13px;background:var(--danger);cursor:pointer;}
+
+  .stage-toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;
+  }
+
+  /* buttons */
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink);
+    padding:9px 14px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s, transform .05s;
+  }
+  button:hover{border-color:var(--accent);}
+  button:active{transform:scale(.97);}
+  button.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--accent-ink);
+    font-weight:700;
+  }
+  button.primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  button.ghost{background:transparent;}
+  button.danger{color:var(--danger);border-color:var(--line);}
+  button.danger:hover{border-color:var(--danger);}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  button:disabled:hover{border-color:var(--line);}
+  button.small{padding:6px 10px;font-size:12px;}
+
+  /* artwork gallery */
+  .art-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-bottom:12px;
+    max-height:440px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-inline-end:4px;
+    scrollbar-width:thin;
+  }
+  .art-card{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--surface-2);
+    cursor:pointer;
+    padding:0;
+    position:relative;
+  }
+  .art-card:hover{border-color:var(--accent);}
+  .art-card.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);}
+  .art-card .thumb{aspect-ratio:3/4;background:#e9e2d2;overflow:hidden;position:relative;}
+  .art-card .thumb svg,.art-card .thumb img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transform:scale(1.42);transform-origin:center;
+  }
+  .art-card .lbl{
+    position:absolute;left:0;right:0;bottom:0;
+    font-size:10.5px;color:#fff;text-align:center;
+    padding:14px 4px 6px;line-height:1.3;
+    display:flex;flex-direction:column;gap:1px;
+    background:linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.4) 55%, rgba(0,0,0,0) 100%);
+  }
+  .art-card .lbl .artist{font-size:9px;opacity:.82;}
+
+  .url-row{display:flex;gap:6px;margin-bottom:14px;}
+  .url-row input{flex:1;min-width:0;}
+
+  input[type=text],input[type=number],select{
+    font-family:inherit;
+    font-size:13.5px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink);
+    width:100%;
+  }
+  label.field{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;}
+  label.field b{display:block;color:var(--ink);font-size:13px;margin-bottom:5px;font-weight:600;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+  .orient-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .orient-btn{
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    padding:9px 10px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    background:var(--surface);
+    color:var(--ink-soft);
+    font-family:inherit;font-size:13px;cursor:pointer;
+  }
+  .orient-btn svg{width:18px;height:18px;flex:none;}
+  .orient-btn:hover{border-color:var(--accent);}
+  .orient-btn.active{
+    border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 14%, var(--surface));
+    color:var(--ink);
+    font-weight:700;
+  }
+
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .swatch{
+    width:34px;height:34px;border-radius:50%;
+    border:2px solid transparent;
+    cursor:pointer;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
+    position:relative;
+  }
+  .swatch.active{border-color:var(--accent);}
+  .swatch span{
+    position:absolute;top:40px;left:50%;transform:translateX(-50%);
+    font-size:10px;color:var(--ink-soft);white-space:nowrap;
+  }
+
+  input[type=range]{width:100%;accent-color:var(--accent);}
+
+  .empty-note{
+    font-size:12.5px;color:var(--ink-soft);
+    border:1px dashed var(--line);
+    border-radius:10px;padding:12px;text-align:center;
+  }
+
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+
+  .preview-wrap{margin-top:14px;}
+  .preview-wrap img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;}
+  .toast{
+    font-size:12.5px;color:var(--accent-strong);margin-top:8px;min-height:16px;
+  }
+
+  footer.site-footer{
+    text-align:center;color:var(--ink-soft);font-size:12px;margin-top:34px;
+  }
+  footer.site-footer a{color:var(--accent-strong);}
+
+  .calib{margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">ش</div>
+      <div>
+        <h1>پیش‌نمایش دیوار شوگون</h1>
+        <p>قبل از خرید، ببین تابلو روی دیوار خودت چه شکلیه.</p>
+      </div>
+    </div>
+    <a class="site-link" href="https://galleryshogun.ir" target="_blank" rel="noopener">مشاهده کالکشن در شوگون گالری ←</a>
+  </header>
+
+  <div class="steps">
+    <div class="step" data-step="1"><div class="num">۱</div><div class="txt"><b>عکس دیوار</b>آپلود کن یا از نمونه استفاده کن</div></div>
+    <div class="step active" data-step="2"><div class="num">۲</div><div class="txt"><b>چیدن تابلو</b>جابه‌جا، بزرگ و کوچک کن</div></div>
+    <div class="step" data-step="3"><div class="num">۳</div><div class="txt"><b>ذخیره</b>تصویر نهایی رو دانلود کن</div></div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT: stage -->
+    <div>
+      <div class="panel">
+        <h2>دیوار شما</h2>
+        <p class="hint">یک عکس واضح و صاف از دیوار موردنظرت آپلود کن. فعلاً یک نمونه‌ی ساده نمایش داده شده.</p>
+
+        <div class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <div>برای آپلود عکس دیوار کلیک کن، یا فایل را بکش و رها کن</div>
+        </div>
+        <input type="file" id="roomInput" accept="image/*" hidden>
+
+        <label class="field calib">
+          <b>عرض تقریبی دیوار در عکس (سانتی‌متر)</b>
+          برای اینکه اندازه‌ی واقعی تابلو درست نمایش داده بشه
+          <input type="number" id="wallWidth" value="300" min="80" max="1200" step="10">
+        </label>
+
+        <div class="stage-shell" id="stageShell">
+          <button class="fs-toggle" id="fsToggleBtn" type="button" title="بزرگ‌نمایی تمام‌صفحه">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+          </button>
+          <div class="stage" id="stage">
+            <span class="sample-tag" id="sampleTag">اتاق نمونه — عکس خودت رو آپلود کن</span>
+          </div>
+        </div>
+
+        <div class="stage-toolbar">
+          <button class="primary" id="addFrameBtn">+ افزودن قاب جدید</button>
+          <button id="dupBtn" disabled>دو نسخه‌ای کردن</button>
+          <button id="frontBtn" disabled>آوردن به جلو</button>
+          <button class="danger" id="delBtn" disabled>حذف قاب</button>
+          <button class="ghost" id="resetBtn">شروع دوباره</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>پیش‌نمایش نهایی</h2>
+        <p class="hint">وقتی چیدمان رو پسندیدی، تصویر نهایی رو بساز و ذخیره کن.</p>
+        <button class="primary" id="exportBtn">ساخت و دانلود تصویر نهایی</button>
+        <div class="toast" id="exportToast"></div>
+        <div class="preview-wrap" id="previewWrap" hidden>
+          <img id="previewImg" alt="پیش‌نمایش نهایی دیوار">
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: controls -->
+    <div>
+      <div class="panel">
+        <h2>گالری تابلو</h2>
+        <p class="hint">یکی از تابلوهای واقعی شوگون گالری رو انتخاب کن یا تابلوی خودت رو آپلود کن. اگر قابی انتخاب شده باشه، تابلوی همون قاب عوض می‌شه؛ وگرنه یک قاب جدید اضافه می‌شه.</p>
+
+        <input type="text" id="artSearch" placeholder="جستجو بین تابلوها (نام اثر یا هنرمند)…" style="margin-bottom:10px;">
+
+        <div class="art-grid" id="artGrid"></div>
+
+        <div class="dropzone" id="artDropzone" style="padding:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:20px;height:20px;"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <div>آپلود عکس تابلوی خودت</div>
+        </div>
+        <input type="file" id="artInput" accept="image/*" hidden>
+
+        <div class="url-row">
+          <input type="text" id="artUrl" placeholder="یا آدرس تصویر محصول (URL)">
+          <button id="artUrlBtn" class="small">افزودن</button>
+        </div>
+      </div>
+
+      <div class="panel" id="frameControls">
+        <h2>تنظیمات قاب انتخاب‌شده</h2>
+        <div id="noSelection" class="empty-note">یک قاب را روی دیوار انتخاب کن تا بتونی رنگ، اندازه و زاویه‌شو تنظیم کنی.</div>
+
+        <div id="selectionFields" hidden>
+          <label class="field"><b>عنوان تابلو</b>
+            <input type="text" id="fTitle">
+          </label>
+
+          <label class="field"><b>رنگ قاب</b></label>
+          <div class="swatches" id="matSwatches"></div>
+
+          <label class="field"><b>جهت قاب</b></label>
+          <div class="orient-toggle" id="orientToggle">
+            <button type="button" class="orient-btn" data-orient="landscape">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="1.5"/></svg>
+              افقی
+            </button>
+            <button type="button" class="orient-btn" data-orient="portrait">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg>
+              عمودی
+            </button>
+          </div>
+
+          <label class="field"><b>اندازه (سانتی‌متر)</b>
+            <select id="fSizePreset"></select>
+          </label>
+          <div class="row2" style="margin-bottom:14px;">
+            <label class="field"><b>عرض</b><input type="number" id="fW" min="10" max="300"></label>
+            <label class="field"><b>ارتفاع</b><input type="number" id="fH" min="10" max="300"></label>
+          </div>
+
+          <label class="field"><b>زاویه (<span id="rotVal">0</span>°)</b>
+            <input type="range" id="fRot" min="-30" max="30" step="1" value="0">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    ابزار پیش‌نمایش دیوار برای <a href="https://galleryshogun.ir" target="_blank" rel="noopener">شوگون گالری</a> — کلکسیون تابلوهای هنری
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- materials ----------
+     Colors sampled directly from Shogun Gallery's real PVC frame
+     product photos (نمونه قاب) so on-screen frames match what
+     actually ships. Each has a 3-stop tone (hi/mid/lo) for a
+     believable bevel instead of a flat two-color gradient. */
+  var MATERIALS = [
+    {key:"light", label:"چوبی روشن", c1:"#e7c99e", c2:"#d8b78c", c3:"#8e6844", grain:true},
+    {key:"dark", label:"چوبی تیره", c1:"#c9a37f", c2:"#ba906c", c3:"#614228", grain:true},
+    {key:"black", label:"مشکی", c1:"#4a4a4a", c2:"#232323", c3:"#0e0e0e"},
+    {key:"silver", label:"نقره‌ای", c1:"#f2f2f3", c2:"#c9cacc", c3:"#8f9092", metal:true},
+    {key:"champagne", label:"شامپاینی", c1:"#d6cfc6", c2:"#c7bfb4", c3:"#7c7365"},
+    {key:"white", label:"سفید", c1:"#ffffff", c2:"#f1f1ef", c3:"#d6d6d3"}
+  ];
+  function mat(key){ for(var i=0;i<MATERIALS.length;i++){ if(MATERIALS[i].key===key) return MATERIALS[i]; } return MATERIALS[0]; }
+  function matBackgroundCSS(m){
+    var grad = "linear-gradient(135deg,"+m.c1+" 0%,"+m.c2+" 55%,"+m.c3+" 100%)";
+    if(m.grain){
+      return "repeating-linear-gradient(102deg, rgba(0,0,0,.07) 0px, rgba(0,0,0,.07) 1px, transparent 1px, transparent 3px), "+
+             "repeating-linear-gradient(102deg, rgba(255,255,255,.06) 0px, rgba(255,255,255,.06) 1px, transparent 1px, transparent 5px), "+
+             grad;
+    }
+    if(m.metal){
+      return "linear-gradient(100deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 18%, rgba(255,255,255,0) 60%, rgba(255,255,255,.35) 78%, rgba(255,255,255,0) 100%), "+grad;
+    }
+    return grad;
+  }
+
+  /* ---------- size presets (cm) ----------
+     Matches the exact "سایز" options offered on Shogun Gallery's
+     product pages (checked across multiple products), so every
+     size a customer can actually order is selectable here too. */
+  var SIZE_PRESETS = [
+    {label:"۲۰×۲۰", w:20, h:20},
+    {label:"۲۰×۳۰", w:20, h:30},
+    {label:"۳۰×۳۰", w:30, h:30},
+    {label:"۳۰×۴۰", w:30, h:40},
+    {label:"۴۰×۴۰", w:40, h:40},
+    {label:"۵۰×۴۰", w:50, h:40},
+    {label:"۵۰×۵۰", w:50, h:50},
+    {label:"۵۰×۷۰", w:50, h:70},
+    {label:"۶۰×۶۰", w:60, h:60},
+    {label:"۶۰×۸۰", w:60, h:80},
+    {label:"۱۰۰×۷۰", w:100, h:70},
+    {label:"۱۰۰×۱۰۰", w:100, h:100},
+    {label:"۱۲۰×۸۰", w:120, h:80},
+    {label:"۱۵۰×۱۰۰", w:150, h:100},
+    {label:"سفارشی", w:null, h:null}
+  ];
+
+  /* ---------- real gallery artworks ----------
+     Pulled directly from Shogun Gallery's full product catalogue
+     (دسته‌بندی «کالکشن» — every painting sold on the site, 510 items)
+     so customers can search and pick from actual paintings the
+     gallery sells, not generic placeholders. "h" is only present
+     when an item's CDN image hash differs from the common shared
+     resize/cache-key hash used by most product images. */
+  var REAL_ART_HASH = "fad58de7366495db4650cfefac2fcd61.jpg";
+  var REAL_ART = [
+  {pid:516,img:1091,name:'Tulipes et Feuilles',artist:'William Morris'},
+  {pid:515,img:1089,name:'Fleurs et Plantes',artist:'William Morris'},
+  {pid:514,img:1087,name:'Strawberry Thieves',artist:'William Morris'},
+  {pid:513,img:1085,name:'Galerie Art Moderne',artist:'Modigliani'},
+  {pid:512,img:1083,name:'The Young Apprentice',artist:'Modigliani'},
+  {pid:511,img:1081,name:'Hermine Gallia',artist:'Gustav Klimt'},
+  {pid:510,img:1079,name:'Water Castle',artist:'Gustav Klimt'},
+  {pid:509,img:1077,name:'Sunflower',artist:'Gustav Klimt'},
+  {pid:508,img:1075,name:'Adele Bloch-Bauer',artist:'Gustav Klimt'},
+  {pid:507,img:1073,name:'Self Portrait',artist:'Vincent van Gogh'},
+  {pid:506,img:1071,name:'The Postman',artist:'Vincent van Gogh'},
+  {pid:505,img:1069,name:'Roses',artist:'Van Gogh'},
+  {pid:504,img:1067,name:'Almond Blossom',artist:'Van Gogh'},
+  {pid:503,img:1065,name:'Sunflowers',artist:'Vincent van Gogh'},
+  {pid:502,img:1063,name:'Starry Night',artist:'Vincent van Gogh'},
+  {pid:501,img:1061,name:'On the Boat',artist:'Claude Monet'},
+  {pid:500,img:1059,name:'Fishing Boats',artist:'Claude Monet'},
+  {pid:499,img:1057,name:'Rue Montorgueil',artist:'Claude Monet'},
+  {pid:498,img:1055,name:'Garden at Vétheuil',artist:'Claude Monet'},
+  {pid:497,img:1053,name:'Nympheas',artist:'Claude Monet'},
+  {pid:496,img:1051,name:'I Høst',artist:'L.A. Ring'},
+  {pid:495,img:1049,name:'The Little Girl',artist:'Pierre Bonnard'},
+  {pid:494,img:1047,name:'Guitar and Newspaper',artist:'Juan Gris'},
+  {pid:493,img:1045,name:'Seated Woman',artist:'Juan Gris'},
+  {pid:492,img:1043,name:'Girl with Blue Ribbon',artist:'Helene Schjerfbeck'},
+  {pid:491,img:1040,name:'Girl on the Sand',artist:'Helene Schjerfbeck'},
+  {pid:490,img:1039,name:'Jardin',artist:'Edouard Vuillard'},
+  {pid:489,img:1037,name:'Interieur a la Suspension',artist:'Edouard Vuillard'},
+  {pid:488,img:1035,name:'Eiffel Tower',artist:'Georges Seurat'},
+  {pid:487,img:1033,name:'Art Exhibition',artist:'Georges Seurat'},
+  {pid:486,img:1031,name:'Maternal Caress',artist:'Mary Cassatt'},
+  {pid:485,img:1029,name:'Knowledge from Japan'},
+  {pid:484,img:1027,name:'Blue Pot',artist:'Paul Cézanne'},
+  {pid:483,img:1025,name:'Aquarelles',artist:'Paul Cezanne'},
+  {pid:482,img:1023,name:'Flower Bouquet',artist:'Henri Manguin'},
+  {pid:481,img:1021,name:'The Port of Saint Tropez',artist:'Henri Manguin'},
+  {pid:480,img:1019,name:'New York',artist:'Marsden Hartley'},
+  {pid:479,img:1017,name:'Flower Exhibition',artist:'Marsden Hartley'},
+  {pid:478,img:1015,name:'Ausstellung 1923',artist:'Bauhaus'},
+  {pid:477,img:1013,name:'Architecture',artist:'Bauhaus'},
+  {pid:476,img:1011,name:'Ballerina',artist:'Harald Giersing'},
+  {pid:475,img:1009,name:'Suprematist Composition',artist:'Kazimir Malevich'},
+  {pid:474,img:1007,name:'Faun og Nymfe',artist:'Edvard Weie'},
+  {pid:473,img:1005,name:'Ballet Russe',artist:'August Macke'},
+  {pid:472,img:1003,name:'Lime Mallow',artist:'Karl Blossfeldt'},
+  {pid:471,img:1001,name:'Centennial Exhibition',artist:'Piet Mondrian'},
+  {pid:470,img:999,name:'The Fox',artist:'Franz Marc'},
+  {pid:469,img:997,name:'Interior Woman',artist:'Vilhelm Hammershøi'},
+  {pid:468,img:995,name:'Art Nouveau Tree',artist:'Aubrey Beardsley'},
+  {pid:467,img:993,name:'Ballet Art',artist:'Edgar Degas'},
+  {pid:466,img:991,name:'Peindre le Bonheur',artist:'Henri-Edmond Cross'},
+  {pid:465,img:989,name:'Moon',artist:'W. Kandinsky'},
+  {pid:464,img:987,name:'Tropical Forest',artist:'Henri Rousseau'},
+  {pid:463,img:985,name:'The Bauhaus Stairs',artist:'Oskar Schlemmer'},
+  {pid:462,img:983,name:'Modern Art Museum',artist:'Paul Klee'},
+  {pid:461,img:981,name:'D\'Art Moderne',artist:'Robert Delaunay'},
+  {pid:460,img:979,name:'Portrait of Hanne Wilhelm Hansen',artist:'Vilhelm Lundstrøm'},
+  {pid:459,img:977,name:'Tree of Life',artist:'Hilma af Klint'},
+  {pid:458,img:975,name:'Bleu de Ciel',artist:'Kandinsky'},
+  {pid:457,img:973,name:'Le Paysage',artist:'Exhibition Art'},
+  {pid:456,img:971,name:'A Poodle A Day',artist:'Reubens'},
+  {pid:455,img:969,name:'Color Stones',artist:'PSTR Studio'},
+  {pid:454,img:967,name:'Lovely',artist:'Moimaere'},
+  {pid:453,img:965,name:'Lost',artist:'Marin'},
+  {pid:452,img:963,name:'Fresh Start',artist:'Marco'},
+  {pid:451,img:961,name:'Feelings Nr.2',artist:'Marc'},
+  {pid:450,img:959,name:'Meditation',artist:'Maliv'},
+  {pid:449,img:957,name:'Red Silhouette Poppies',artist:'Madelen'},
+  {pid:448,img:955,name:'River Cleanse',artist:'Maarten Léon'},
+  {pid:447,img:953,name:'Bananas',artist:'Lois'},
+  {pid:446,img:951,name:'Kisses No. 02',artist:'Little Detroit'},
+  {pid:445,img:949,name:'Concentration',artist:'Lena Wigers'},
+  {pid:444,img:947,name:'Birds',artist:'Léa Amati'},
+  {pid:443,img:945,name:'Green Coat',artist:'La Poire'},
+  {pid:442,img:943,name:'Geometric Landscape',artist:'Julita Elbe'},
+  {pid:441,img:941,name:'Wabi ~ Sabi',artist:'Esmée'},
+  {pid:440,img:939,name:'Have to be Strong',artist:'Chear Morn'},
+  {pid:439,img:937,name:'Comfort',artist:'Astrid'},
+  {pid:438,img:935,name:'Aboutcuts No. 08',artist:'Amalie'},
+  {pid:437,img:933,name:'Free',artist:'Abstract'},
+  {pid:436,img:931,name:'Aware',artist:'Studio Dalli'},
+  {pid:435,img:929,name:'De la Main Gauche',artist:'Sophie M. Lucie'},
+  {pid:434,img:927,name:'It\'s Us',artist:'Sophie'},
+  {pid:433,img:925,name:'Blue Plant',artist:'PSTR Studio'},
+  {pid:432,img:923,name:'Gentle',artist:'Moimaere'},
+  {pid:431,img:921,name:'Face on Blue',artist:'Marin'},
+  {pid:430,img:919,name:'Endless Options',artist:'Marin'},
+  {pid:429,img:917,name:'Feelings nr.1',artist:'Marc'},
+  {pid:428,img:915,name:'Green Silhouette Poppies',artist:'Madelen'},
+  {pid:427,img:913,name:'Forgive Me I Am Sleepwalking',artist:'Maarten Léon'},
+  {pid:426,img:911,name:'Line Art I',artist:'Lois'},
+  {pid:425,img:909,name:'X',artist:'Lena Wigers'},
+  {pid:424,img:907,name:'Visage soleil',artist:'Léa Amati'},
+  {pid:423,img:905,name:'Danse du soleil',artist:'Léa Amati'},
+  {pid:422,img:903,name:'Floral Fragrance',artist:'Julita Elbe'},
+  {pid:421,img:901,name:'Amaryllis',artist:'Julita Elbe'},
+  {pid:420,img:899,name:'Shinrin ~ Yoku',artist:'Esmée'},
+  {pid:419,img:897,name:'Dame en Blue',artist:'Coco'},
+  {pid:418,img:895,name:'Imagio',artist:'Anna Mörner'},
+  {pid:417,img:893,name:'Linked',artist:'Abstract'},
+  {pid:416,img:891,name:'Dream',artist:'Studio Dalli'},
+  {pid:415,img:889,name:'Between us',artist:'Studio Dalli'},
+  {pid:414,img:887,name:'Awake',artist:'Studio Dalli'},
+  {pid:413,img:885,name:'it\'s me',artist:'Sophie'},
+  {pid:412,img:883,name:'Black River',artist:'PSTR studio'},
+  {pid:411,img:881,name:'Achieve',artist:'Moimaere'},
+  {pid:410,img:879,name:'Epiphany',artist:'Maarten Léon'},
+  {pid:409,img:877,name:'Gaucho',artist:'Lois'},
+  {pid:408,img:875,name:'Balance',artist:'Lois'},
+  {pid:407,img:873,name:'Corps mobile',artist:'Léa Amati'},
+  {pid:406,img:871,name:'Brille le ciel',artist:'Léa Amati'},
+  {pid:405,img:869,name:'White Lilies',artist:'Julita Elbe'},
+  {pid:404,img:867,name:'Flowery Duet',artist:'Julita Elbe'},
+  {pid:403,img:865,name:'Burgundy Blossom',artist:'Julita Elbe'},
+  {pid:402,img:863,name:'Visage de Fille',artist:'Coco'},
+  {pid:401,img:861,name:'La Jeune Femme',artist:'Coco'},
+  {pid:400,img:859,name:'Friducha',artist:'Coco'},
+  {pid:399,img:857,name:'Dame Colorée',artist:'Coco'},
+  {pid:398,img:855,name:'Dame aux Fleurs',artist:'Coco'},
+  {pid:397,img:853,name:'Aboutcuts No. 06',artist:'Amalie'},
+  {pid:396,img:851,name:'Unfold',artist:'Camille Jouarre'},
+  {pid:395,img:849,name:'Le Pianiste',artist:'Camille Jouarre'},
+  {pid:394,img:847,name:'Viree Imaginaire',artist:'Camille Jouarre'},
+  {pid:393,img:845,name:'Sur Le Green',artist:'Camille Jouarre'},
+  {pid:392,img:841,name:'Tumble',artist:'Camille Jouarre'},
+  {pid:391,img:839,name:'Patience',artist:'Camille Jouarre'},
+  {pid:390,img:837,name:'Histoires Entrelacees',artist:'Camille Jouarre'},
+  {pid:389,img:835,name:'Lien',artist:'Camille Jouarre'},
+  {pid:388,img:833,name:'Oh Oh Spaghettios',artist:'Reubens'},
+  {pid:387,img:831,name:'Chapeau #2',artist:'Maxime'},
+  {pid:386,img:829,name:'Dame de l\'été',artist:'Maxime'},
+  {pid:385,img:827,name:'Sunbathing',artist:'June20'},
+  {pid:384,img:825,name:'Femme #2',artist:'Maxime'},
+  {pid:383,img:823,name:'Spying Blue',artist:'Maxime'},
+  {pid:382,img:821,name:'Spying Duo',artist:'Maxime'},
+  {pid:381,img:819,name:'Sitting Pretty II',artist:'Maxime'},
+  {pid:380,img:817,name:'Automne #2',artist:'Maxime'},
+  {pid:379,img:815,name:'You Don\'t Own Me',artist:'Ángel Hernández'},
+  {pid:378,img:813,name:'Dance Like its Friday',artist:'Maria Murphy'},
+  {pid:377,img:811,name:'Spying Summer',artist:'Maxime'},
+  {pid:376,img:809,name:'Captain',artist:'Maria Murphy'},
+  {pid:375,img:807,name:'Kalea',artist:'Rini Spiel'},
+  {pid:374,img:805,name:'Florinda',artist:'Rochi Lana'},
+  {pid:373,img:803,name:'Jazzy',artist:'La Poire'},
+  {pid:372,img:801,name:'Gaia',artist:'June20'},
+  {pid:371,img:799,name:'Someone Like You',artist:'Ángel Hernández'},
+  {pid:370,img:797,name:'Disco Stu',artist:'Maria Murphy'},
+  {pid:369,img:795,name:'Orange Coat',artist:'La Poire'},
+  {pid:368,img:793,name:'Girl and Wolf',artist:'Enikő Eged'},
+  {pid:367,img:791,name:'In the Mood',artist:'June20'},
+  {pid:366,img:789,name:'Salute',artist:'Enikő Eged'},
+  {pid:365,img:787,name:'Adore',artist:'Camille Jouarre'},
+  {pid:364,img:785,name:'Benji',artist:'June20'},
+  {pid:363,img:781,name:'Blue Bloom',artist:'Camille Jouarre'},
+  {pid:362,img:779,name:'Year of the Dragon I',artist:'Enikő Eged'},
+  {pid:361,img:777,name:'Jimmy',artist:'June20'},
+  {pid:360,img:773,name:'Flower Fur',artist:'La Poire'},
+  {pid:359,img:771,name:'Lune Rousse',artist:'Camille Jouarre'},
+  {pid:358,img:769,name:'Don\'t Want to Go to Work',artist:'Maria Murphy'},
+  {pid:357,img:767,name:'Spying',artist:'Maxime'},
+  {pid:356,img:765,name:'Interior Composition No.3',artist:'Sander Patelski'},
+  {pid:355,img:763,name:'Vibrant Ceramics',artist:'Roxanne'},
+  {pid:354,img:761,name:'Ceramic Mugs',artist:'Roxanne'},
+  {pid:353,img:759,name:'Ceramic Lamp',artist:'Roxanne'},
+  {pid:352,img:757,name:'Ceramic Jug',artist:'Roxanne'},
+  {pid:351,img:755,name:'Lemonade',artist:'Rosi Feist'},
+  {pid:350,img:753,name:'Red Apple',artist:'Rosi Feist'},
+  {pid:349,img:751,name:'Vase and Shapes',artist:'Matías Larraín'},
+  {pid:348,img:749,name:'Striped Vase',artist:'Matías Larraín'},
+  {pid:347,img:747,name:'Le Soleil',artist:'Matías Larraín'},
+  {pid:346,img:745,name:'Bird and Shapes',artist:'Matías Larraín'},
+  {pid:345,img:743,name:'Sun Tunnel',artist:'Marin'},
+  {pid:344,img:741,name:'Pure Fire',artist:'Marin'},
+  {pid:343,img:739,name:'Memorylight',artist:'Marin'},
+  {pid:342,img:737,name:'Cloudy Love',artist:'Marin'},
+  {pid:341,img:735,name:'City Hue',artist:'Marin'},
+  {pid:340,img:733,name:'Aurora Nights',artist:'Marin'},
+  {pid:339,img:731,name:'Winter Lady',artist:'La Poire'},
+  {pid:338,img:729,name:'Lemon Coat',artist:'La Poire'},
+  {pid:337,img:727,name:'Green Coat',artist:'La Poire'},
+  {pid:336,img:725,name:'Festive Coat',artist:'La Poire'},
+  {pid:335,img:723,name:'Apple Coat',artist:'La Poire'},
+  {pid:334,img:721,name:'Vibe',artist:'Léa Amati'},
+  {pid:333,img:719,name:'Marigolds in Vase',artist:'Madelen'},
+  {pid:332,img:717,name:'Tra La La',artist:'Maria Murphy'},
+  {pid:331,img:715,name:'Books I Never Read',artist:'Maria Murphy'},
+  {pid:330,img:713,name:'On the Sofa',artist:'Marco'},
+  {pid:329,img:711,name:'Yellow Vase',artist:'Marco'},
+  {pid:328,img:709,name:'Miniature IV',artist:'Astrid Dlv'},
+  {pid:327,img:707,name:'Miniature III',artist:'Astrid Dlv'},
+  {pid:326,img:705,name:'Bali',artist:'Sara Stribrant'},
+  {pid:325,img:703,name:'Pastel',artist:'Studio Dalli'},
+  {pid:324,img:700,name:'Rainbow',artist:'Studio Dalli'},
+  {pid:323,img:698,name:'Great Wave Of Japan',artist:'Rosi Feist'},
+  {pid:322,img:696,name:'Strawberry',artist:'Rosi Feist'},
+  {pid:321,img:694,name:'Lemon',artist:'Rosi Feist'},
+  {pid:320,img:692,name:'Four Fruits',artist:'Rosi Feist'},
+  {pid:319,img:690,name:'Mont Fuji',artist:'Matías Larraín'},
+  {pid:318,img:688,name:'La Lune',artist:'Matías Larraín'},
+  {pid:317,img:686,name:'Fruit Bowl',artist:'Matías Larraín'},
+  {pid:316,img:684,name:'Citrus',artist:'Matías Larraín'},
+  {pid:315,img:682,name:'Bonjour',artist:'Matías Larraín'},
+  {pid:314,img:680,name:'Sunkissed',artist:'Marin'},
+  {pid:313,img:678,name:'Purple rain',artist:'Marin'},
+  {pid:312,img:676,name:'Pink Gaze',artist:'Marin'},
+  {pid:311,img:674,name:'Opalescent',artist:'Marin'},
+  {pid:310,img:672,name:'Nebulae',artist:'Marin'},
+  {pid:309,img:670,name:'Illumes',artist:'Marin'},
+  {pid:308,img:666,name:'Dusk',artist:'Marin'},
+  {pid:307,img:664,name:'Dawn',artist:'Marin'},
+  {pid:306,img:662,name:'Bonnards Fruit Bowl',artist:'Maria Murphy'},
+  {pid:305,img:660,name:'Yellow Flowers',artist:'Marco'},
+  {pid:304,img:658,name:'Flowers In The Park',artist:'Madelen'},
+  {pid:303,img:656,name:'Coral',artist:'Madelen'},
+  {pid:302,img:654,name:'A Bed Of Pansies',artist:'Madelen'},
+  {pid:301,img:652,name:'Summer',artist:'Léa Amati'},
+  {pid:300,img:650,name:'Colored Birds',artist:'Léa Amati'},
+  {pid:299,img:648,name:'New Tulips',artist:'La Poire'},
+  {pid:298,img:646,name:'Blue Poppies',artist:'La Poire',h:'e8d893f10e02cca674c5276744bfb148.jpg'},
+  {pid:297,img:644,name:'Aurora',artist:'La Poire',h:'caeea7da46e246a26ec697b10bc408c5.jpg'},
+  {pid:296,img:642,name:'Pequenos Momentos III',artist:'Eva Halfers',h:'1d363784821eff7fcfff5a08f971c3c0.jpg'},
+  {pid:295,img:640,name:'Yesterday The Beauty Of The Dawn',artist:'Helen Butler',h:'c916ace514cbb753a549e5ad8aa5eb5a.jpg'},
+  {pid:294,img:638,name:'Passage 02',artist:'Helen Butler',h:'fea1dced5e2fd95b7704d1a3f5118b57.jpg'},
+  {pid:293,img:636,name:'Passage 01',artist:'Helen Butler',h:'94b8f4910acffce75eac5d596263aa73.jpg'},
+  {pid:292,img:634,name:'Horizon',artist:'Helen Butler',h:'290b5f636d267993c9f0b846451ecd8a.jpg'},
+  {pid:291,img:632,name:'Miniature II',artist:'Astrid Dlv',h:'2477a1d955bc4aaa0bd4d2fa5ac3cc60.jpg'},
+  {pid:290,img:630,name:'Miniature I',artist:'Astrid Dlv',h:'471617f32149bcac69ddb6153ae9ebda.jpg'},
+  {pid:289,img:628,name:'Hold',artist:'Astrid Dlv',h:'0c64ba7f26215b77aafaf8aa3fa9b991.jpg'},
+  {pid:288,img:626,name:'Confession',artist:'Astrid Dlv',h:'fc7551af4614bb47c58329407cd9a87f.jpg'},
+  {pid:287,img:624,name:'The Monument Of A Memory',artist:'Ángel Hernández',h:'51017a2889dae01de304e9aa943c8cdf.jpg'},
+  {pid:286,img:622,name:'Fruits',artist:'Iga Kosicka',h:'0d1d1ada8bdc03bf91101be67f74b7b6.jpg'},
+  {pid:285,img:620,name:'Green Gold',artist:'Helen Butler',h:'a87aaf53c43cf708b79478663d455c08.jpg'},
+  {pid:284,img:618,name:'Embers',artist:'Helen Butler',h:'863fa3c4f83ec9d5df0959f31fda5b17.jpg'},
+  {pid:283,img:616,name:'Sunburst',artist:'Helen Butler',h:'2e05bc8bc2af49c9795ec4706bc75609.jpg'},
+  {pid:282,img:614,name:'Pink Tapas',artist:'Eva Halfers',h:'b3b9ffc95ed62b6828fed88d380b209d.jpg'},
+  {pid:281,img:612,name:'Celebration',artist:'Eva Halfers',h:'6b2c586a20108aeb835eb35d98ad98be.jpg'},
+  {pid:280,img:610,name:'Bonding',artist:'Carla Petelski',h:'08495dab3d40281e6e3179b328bb1736.jpg'},
+  {pid:279,img:608,name:'Falling Flowers',artist:'Carla Petelski',h:'c25a58bc9ace3d1cbcd78c5d118f8577.jpg'},
+  {pid:278,img:606,name:'Tenderness',artist:'Astrid Dlv',h:'b92ddcdadaec4b5ff930a4796b49fe3e.jpg'},
+  {pid:277,img:604,name:'Ethereal',artist:'Ángel Hernández',h:'46f63fcdace9c69796bf7e3a082c6067.jpg'},
+  {pid:276,img:602,name:'Butterfly',artist:'Madelen Möllard',h:'0928a4ca95959f22e31d9fbdb190a0da.jpg'},
+  {pid:275,img:600,name:'Elephant',artist:'Olivia Holden',h:'2ea6e900bb2fafcffa8263bff9abd41b.jpg'},
+  {pid:274,img:598,name:'Tiger',artist:'Olivia Holden',h:'897ac715f708abecf35c11c7963aa2db.jpg'},
+  {pid:273,img:596,name:'Crocodile',artist:'Olivia Holden',h:'923882c81c8f284c4802599dc6bf898d.jpg'},
+  {pid:272,img:594,name:'Bus',artist:'Olivia Holden',h:'dd5bc9dd80b1b8349bab6b29254ec7ed.jpg'},
+  {pid:271,img:592,name:'Frog',artist:'Olivia Holden',h:'7661400e726fba4940c4b5fa57be30a7.jpg'},
+  {pid:270,img:590,name:'Octopus',artist:'Olivia Holden',h:'0c42355b85cdbea805e7c64e44c25d75.jpg'},
+  {pid:269,img:588,name:'Ogawa Kazumasa - Lotus',artist:'تابلو اوگاوا کازوماسا',h:'abf4526df210114ead8a3544056495cc.jpg'},
+  {pid:268,img:582,name:'Kirifuri Waterfall',artist:'Katsushika Hokusai'},
+  {pid:267,img:580,name:'Volcano',artist:'Eniko Eged'},
+  {pid:266,img:578,name:'Yoro Waterfall',artist:'Katsushika Hokusai'},
+  {pid:265,img:576,name:'Bodega Cat Store',artist:'Eniko Eged'},
+  {pid:264,img:574,name:'Snow at Ukimido',artist:'Tsuchiya Koitsu'},
+  {pid:263,img:572,name:'Bodega Cat Dumpling',artist:'Eniko Eged'},
+  {pid:262,img:570,name:'Woodblock Print Purple',artist:'Yatsuo no Tsubaki'},
+  {pid:261,img:568,name:'Birds and Plants',artist:'Ohara Koson'},
+  {pid:260,img:566,name:'Monkey Bridge',artist:'Utagawa Hiroshige'},
+  {pid:259,img:564,name:'Cranes',artist:'Ohara Koson'},
+  {pid:258,img:562,name:'Water Lily',artist:'Ohara Koson'},
+  {pid:257,img:560,name:'Japanese Textile I',artist:'Shima Shima'},
+  {pid:256,img:558,name:'Japandi - Nordic + Japanese Design I'},
+  {pid:255,img:556,name:'Woodblock',artist:'Bijutsu Sekai'},
+  {pid:254,img:554,name:'Cowgirl Ponytail',artist:'Enikő Eged'},
+  {pid:253,img:552,name:'Koi Gang',artist:'Rosi Feist'},
+  {pid:252,img:550,name:'Mont Fuji',artist:'Matías Larraín'},
+  {pid:251,img:548,name:'Bird on Branch',artist:'Ohara Koson'},
+  {pid:250,img:546,name:'View of Mount Fuji',artist:'Kōno Bairei'},
+  {pid:249,img:544,name:'Eight Shadow Figures',artist:'Utagawa Hiroshige'},
+  {pid:248,img:542,name:'Japandi - Nordic + Japanese Design II'},
+  {pid:247,img:540,name:'Turtle Orange',artist:'Enikő Eged'},
+  {pid:246,img:538,name:'Mount Fuji',artist:'Kamisaka Sekka'},
+  {pid:245,img:536,name:'Two Bodega Cats',artist:'Enikő Eged'},
+  {pid:244,img:534,name:'Bijutsu Sekai - Jonquil'},
+  {pid:243,img:532,name:'White Plum Blossoms',artist:'Ito Jakuchu'},
+  {pid:242,img:530,name:'View of Mount Fuji',artist:'Utagawa Hiroshige'},
+  {pid:241,img:528,name:'Peacock',artist:'Ohara Koson'},
+  {pid:240,img:526,name:'Bijutsu Sekai - Pink Sky'},
+  {pid:239,img:524,name:'Japanese Red Crown Crane',artist:'Ogata Korin'},
+  {pid:238,img:522,name:'Cat Sitting in Window',artist:'Utagawa Hiroshige',h:'ff0e175d530b47ec51dc8f153357af6d.jpg'},
+  {pid:237,img:520,name:'Bijutsu Sekai',artist:'Vine',h:'31642332b17c0043d23ba86f6ee5fde0.jpg'},
+  {pid:236,img:518,name:'Bodega Cat Kimchi',artist:'Enikő Eged',h:'4d9d799c5ac374c742337fc32ebda788.jpg'},
+  {pid:235,img:516,name:'Bodega Cat Pong',artist:'Enikő Eged',h:'8eba5ae0f01a8bedcd1e9f8e8a6acbb6.jpg'},
+  {pid:234,img:514,name:'Bodega Cat Japan',artist:'Enikő Eged',h:'38f2973e584e167c86e78ba5094bfc78.jpg'},
+  {pid:233,img:512,name:'Bodega Cat Drinks',artist:'Enikő Eged',h:'5e9f332552fc206c7e1ed55217339b1b.jpg'},
+  {pid:232,img:510,name:'Yatsuo no Tsubaki',artist:'Woodblock Print I',h:'09a2eaa8062be871eb95c2abccd33435.jpg'},
+  {pid:231,img:508,name:'Bodega Cat Chili',artist:'Enikő Eged',h:'16e1961f9a2b88fb7a961e00e7fcbb3b.jpg'},
+  {pid:230,img:506,name:'Yatsuo no Tsubaki',artist:'Woodblock Print IIII',h:'4f0185071688deb73e7402bb5e46a33f.jpg'},
+  {pid:229,img:504,name:'Café con Leche',artist:'Abbie Franks',h:'920089da64afc76fc7ee9db5b9c14ef2.jpg'},
+  {pid:228,img:502,name:'A Past Lover',artist:'Carla Petelski',h:'e03be438beeec0f646ddd19fa91dbb1e.jpg'},
+  {pid:227,img:500,name:'In the Sun',artist:'Marco Marella',h:'d25694ed5bf5ac4fbde07142a44cc25d.jpg'},
+  {pid:226,img:498,name:'Horses of Wadi Rum',artist:'Enikő Eged',h:'97e9dd5ae43024f17a44ede7615cfabc.jpg'},
+  {pid:225,img:496,name:'Bialetti',artist:'Matías Larraín',h:'44bbdacf4c516f941bdf25583e51554c.jpg'},
+  {pid:224,img:494,name:'End of October',artist:'Olivia Leino',h:'33d23bee6f6457d18b26327e5737923e.jpg'},
+  {pid:223,img:492,name:'Matterhorn Spring',artist:'Mandy Maria',h:'795e911af29c131a4ff986b79bf99954.jpg'},
+  {pid:222,img:490,name:'Flower Field',artist:'Liat Greenberg',h:'0465d4d809ecc88ee8151341ed2937e6.jpg'},
+  {pid:221,img:488,name:'Pine II',artist:'Jörgen Hansson',h:'709d1bc74f868ce8fa9cc896d2f2b676.jpg'},
+  {pid:220,img:486,name:'Stillness',artist:'Camille Jouarre',h:'b00e23a52f55d56fc21183bda7a0bb4c.jpg'},
+  {pid:219,img:484,name:'Collage of Life',artist:'Marin Vaan Zaal',h:'f5112cd565c96e89260585db5f9d77c4.jpg'},
+  {pid:218,img:482,name:'Ink Lines I',artist:'Astrid Babayan',h:'4f8770a79043cec11a1d5131fed83af8.jpg'},
+  {pid:217,img:479,name:'Sanja',artist:'Rini Spiel',h:'7d75dd951e16f07f1dbb74ce49a68472.jpg'},
+  {pid:216,img:471,name:'City Nights',artist:'Marin Vaan Zaal',h:'0b1b0b008b21cb6eb5658837b70ae792.webp'},
+  {pid:215,img:469,name:'Embers',artist:'Helen Butler',h:'e94bed87599245d8c39b87e04e452ff7.webp'},
+  {pid:214,img:467,name:'Modernt Konst',artist:'هیلما آف کلینت',h:'6707aa14db4e1d7fc246454c13cc370b.webp'},
+  {pid:213,img:465,name:'Abstract Green Shapes No1 Print',h:'f64bad881037b90c2003b3cd8c9598de.jpg'},
+  {pid:212,img:464,name:'Plot Twist Print',h:'728591e80bbce0b7c9a3defbd35d06c8.jpg'},
+  {pid:211,img:461,name:'Crossing Lines Print',h:'fa106c0de10006363279a1146acb79ab.jpg'},
+  {pid:210,img:460,name:'Ochre Versus Oxblood Print',h:'ac83b53f38210180acec5958c03065cd.jpg'},
+  {pid:209,img:458,name:'Leo Gestel - Two Bathing',h:'e973ec72ab473749f89f5ac400bae475.jpg'},
+  {pid:208,img:456,name:'Abstract Objects Print',h:'53b96321d4f12dfa3dcd24a0fc73f12f.jpg'},
+  {pid:207,img:453,name:'Forest Green Abstract No1 Print',h:'630ad5c77bcf9378f5519c6cc5c350bc.webp'},
+  {pid:206,img:451,name:'This Is It Print',h:'c7fbe4d6a31881dddba7f3b495d33fe3.jpg'},
+  {pid:205,img:450,name:'911 Classic Red Print',h:'14ee99fb224ff1ddfaf74ec5f838b5e3.webp'},
+  {pid:204,img:447,name:'Les Nuances De Rouge Print',h:'2d01540f4ea8262268071b3ea170f1d3.jpg'},
+  {pid:203,img:445,name:'Play Bold Print',h:'061c0251c1873f85795f5297285c4620.jpg'},
+  {pid:202,img:443,name:'Take Up Space Print',h:'e42f2df2385d1e35c0318acc87f0543a.jpg'},
+  {pid:201,img:441,name:'Icon Print',h:'d49b848fd44f57d21ff51e6a9522b80e.jpg'},
+  {pid:200,img:439,name:'Bold Art Print',h:'44590bf6dff17b1e87ca6667629b446e.jpg'},
+  {pid:199,img:437,name:'Futura Lines Print',h:'7371c8b3065711bd4a96340c0469c6d3.jpg'},
+  {pid:198,img:435,name:'Les Nuances de Bleu Print',h:'1c1932077c76502c48cb1f01bd209b05.jpg'},
+  {pid:197,img:434,name:'Nostalgia Print',h:'d9d7b4ffa710d29e90e9b0a290bd3e08.jpg'},
+  {pid:196,img:431,name:'Silver Bauhaus Print',h:'23be84c3f0ca1890c64eef5bb0b2fbc1.jpg'},
+  {pid:195,img:430,name:'Let\'s Eat',h:'cf46f7e1e918cffc6487c0b4e629f32e.webp'},
+  {pid:194,img:427,name:'Food & Wine',h:'a141b34609aba6212a5faf968e0e4235.webp'},
+  {pid:193,img:425,name:'Vintage Japanese Frog',h:'aea9ded9ed144b8ef6aa0ac6d491ce47.webp'},
+  {pid:192,img:423,name:'Abstract Exhibition by Henri Matisse',h:'c41666c26f89bb1996d9dff857bf26b6.webp'},
+  {pid:191,img:421,name:'Italy Chilli',h:'086260628256fcc1dd79e534333ca65b.webp'},
+  {pid:190,img:419,name:'Love Is A Kiss',h:'bb76160bac8589c189c4b176eee3b905.webp'},
+  {pid:189,img:417,name:'Sam on the Hill',h:'e121d77e100eafbac70e73722c3a8e5c.jpg'},
+  {pid:188,img:415,name:'The Garden Ritual',h:'037ec11a45caf28207efbd0cb5b598bf.jpg'},
+  {pid:187,img:413,name:'Black and White Stripe Cat Illustration',h:'7d6e6588763bfe7b287f14b1b805ecd0.jpg'},
+  {pid:186,img:411,name:'Still, Together',h:'c9b98e198c449cb1ce557dd0cc34d8d5.jpg'},
+  {pid:185,img:409,name:'Long Time No See',h:'c7e0f16488ba8edab776180ac17de025.jpg'},
+  {pid:184,img:407,name:'Group Chat',h:'407c3b5e1cede39d10d393c84c2939a5.jpg'},
+  {pid:183,img:405,name:'In Good Company',h:'27643fbf85f97358c284dff96d97e8c0.jpg'},
+  {pid:182,img:403,name:'The Hug',h:'c4679a96a7c282914d3f5194c884f82c.jpg'},
+  {pid:181,img:401,name:'For Now I Don\'t Know',h:'4543a0c3ae2db8147933d0bb42c3f536.jpg'},
+  {pid:180,img:400,name:'Take a Moment',h:'5809e93a665fe39c4b5ef8b7b0f74c8f.jpg'},
+  {pid:179,img:398,name:'Five Lemons In a Net Bag',h:'532a795282bc4e4403e1268a9cfd0213.jpg'},
+  {pid:178,img:396,name:'Peaches',h:'4e40fc77be7d45a39484e099e2c44442.webp'},
+  {pid:177,img:393,name:'Spaghetti Love Language',h:'c7c8810c76d22ed15d7643acce2d894e.webp'},
+  {pid:176,img:391,name:'Bon Appétit',h:'421965d843d95ea8a1cfa2fbc9b3a885.webp'},
+  {pid:175,img:389,name:'Morning Coffee Ritual',h:'b552ef14b2270a46cf62d630c650025f.webp'},
+  {pid:174,img:387,name:'Abstraction N2',h:'15808a1a4e71852935d70a8ee35fba0c.webp'},
+  {pid:173,img:385,name:'Bauhaus eyes',h:'ed5cd9753e431f9a790a81029f96afbe.webp'},
+  {pid:172,img:383,name:'Matsumoto Hoji frog',h:'e0b335e898f7f1602f52e0d7114c5451.webp'},
+  {pid:171,img:381,name:'Pizza',h:'dc85b0f48dc9844e6a5bfd312b739507.webp'},
+  {pid:170,img:379,name:'Abstract blue',h:'ba8f2cbd78f2d74e3a830fc6293c674c.webp'},
+  {pid:169,img:377,name:'Tropical Summer',h:'a0d7006dfd1cb9b3c6feddcf87fe92ca.webp'},
+  {pid:168,img:375,name:'Pumpkin forever',h:'db5a7bc5e2619e27beb2fb667cd19319.webp'},
+  {pid:167,img:373,name:'Pumpkin Foverver',h:'cf051f2cfff0c6490ff6c9b476c2dca2.webp'},
+  {pid:166,img:372,name:'Pop art dog',h:'8e64bc2b4e875e0fea22a239f521f939.webp'},
+  {pid:165,img:369,name:'More wine please',h:'5589df6c2f37b5ca6ea5f8d29f850cdb.webp'},
+  {pid:164,img:367,name:'Vibrant Blue Pink Abstract',h:'d6e188ac646d412767032268667c3651.jpg'},
+  {pid:163,img:365,name:'Orange Strokes',h:'10dea716db234887be29fc7949985859.jpg'},
+  {pid:162,img:364,name:'Augusto Giacometti',h:'920c8dd8a2ae3132a4edd5956249e762.webp'},
+  {pid:161,img:362,name:'Egon Schiele - Lecture by Egon Friedell',h:'8b22438f2f83917e5976e6026f69e547.webp'},
+  {pid:160,img:359,name:'OH HI blue',h:'53ff397bb83daf1ce085997769817865.webp'},
+  {pid:159,img:357,name:'Marilyn',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:158,img:356,name:'Keith Haring at Fun Gallery',h:'b42256be2c46d2543f7ee150533c031c.jpg'},
+  {pid:157,img:354,name:'Untitled',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:156,img:352,name:'The Frame (Self-Portrait)',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:155,img:350,name:'Untitled (DJ), 1983',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:154,img:347,name:'Linographies Originales',h:'cfcd208495d565ef66e7dff9f98764da.jpg'},
+  {pid:153,img:346,name:'Reproduction of an original poster design for Henry Moore',h:'534539da290291af7ac509f87e127c1e.jpg'},
+  {pid:152,img:344,name:'Flowers, 1970 (1 purple, 1 yellow 2 pink)',h:'5cac7a49a37a4ca16b1aada3f4f606fb.jpg'},
+  {pid:151,img:342,name:'Self-Portrait with Thorn Necklace and Hummingbird',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:150,img:340,name:'Trumpet, 1984',h:'d82d1d9d3ef0357343058a680c4e992b.jpg'},
+  {pid:149,img:338,name:'Bauhaus Graphic Print',h:'0745e7b75ba23c693f6a88e462edc845.jpg'},
+  {pid:148,img:336,name:'Bauhaus Composition Print',h:'71159361b143a8ee04ba571c3e14792f.jpg'},
+  {pid:147,img:334,name:'Bauhaus Sutterlin Print',h:'a89924f4081b090f5f5cf453a61ec9df.jpg'},
+  {pid:146,img:332,name:'Bauhaus 1919 Print',h:'24db68f800a7da02431495320d8b76ea.jpg'},
+  {pid:145,img:324,name:'Johannes Vermeer - Girl with a Pearl Earring Print',h:'b3f86f214fa4685b729ff5f792f0d78c.jpg'},
+  {pid:144,img:322,name:'Gustav Klimt - Portrait of Helene Klimt Print',h:'3c4e32e00617a30527a6b6b4f65d7b52.jpg'},
+  {pid:143,img:320,name:'Kano Motonobu - Japanese Crane Print',h:'82116e755f7a92813e5afe62785f7b7b.jpg'},
+  {pid:142,img:318,name:'Taguchi Tomoki - Swallow and Butterflies Print',h:'bcc88e6f5eb3e0f65fa7757e67842385.jpg'},
+  {pid:141,img:315,name:'Auguste Rodin - Dancing Figure Print',h:'446ecd433d58c382d197d0101034f159.jpg'},
+  {pid:140,img:314,name:'Edvard Munch - The Scream Print',h:'df3b1ff5e455ba49096788f88bef6de0.jpg'},
+  {pid:139,img:312,name:'Monet - Woman with a Parasol, facing left Print',h:'940d2e3ba167c02699823919e512b75e.jpg'},
+  {pid:138,img:310,name:'William Morris - Lodden Print',h:'e39772fd2ae864d561479e5f01721dc4.jpg'},
+  {pid:137,img:307,name:'Retro Shapes No2 Print',h:'7194ef9f2aab93b14d653b595d1c5399.jpg'},
+  {pid:136,img:305,name:'Eyes for You Canvas print',h:'3bd5040b7385fdaead32a642648c768e.jpg'},
+  {pid:135,img:303,name:'Iconic Lips Print',h:'c5ff1c88e386449440c8ea64a808fd15.jpg'},
+  {pid:134,img:302,name:'Astro Voyager Print',h:'903756c70532e0ec75cc2c9c9ef81b80.jpg'},
+  {pid:133,img:299,name:'The Garden of Dance Canvas print',h:'c344482fc361f1d503724a1261933118.jpg'},
+  {pid:132,img:297,name:'Holiday Pattern No1 Canvas print',h:'bc29be2298dfb19455902d3b4d6a883d.jpg'},
+  {pid:131,img:295,name:'Citrus Portrait Canvas print',h:'ab154221c34df4f06631067405cb2f19.jpg'},
+  {pid:130,img:293,name:'Bubblegum Princess Canvas print',h:'90f40bffee1b59b41579cfe80d7f1eab.jpg'},
+  {pid:129,img:291,name:'Bauhaus Eye Print',h:'7a2fe47bd14a9b98f71cc402ae416b17.jpg'},
+  {pid:128,img:290,name:'Bauhaus Cesca Chair Print',h:'5cb18f8ef56d3b0e4e328d612fbd499d.webp'},
+  {pid:127,img:287,name:'Bauhaus Capsules Print',h:'f5c837764fc2013ef08f81f3e78279a1.jpg'},
+  {pid:126,img:286,name:'Bauhaus Classic Shapes Print',h:'5bc25c372df016518b32d6ea2e6ac5dc.jpg'},
+  {pid:125,img:283,name:'Bauhaus 1920 Print',h:'dc05012208c3fa43f421d1f1303571c6.jpg'},
+  {pid:124,img:281,name:'Bauhaus Geometric Color Blocks Print',h:'f26de9ff0521dbf46d55305b78b90311.jpg'},
+  {pid:123,img:280,name:'Bauhaus 1923 Print',h:'0e255b19e13ccf7a880d9eed61f5cba5.jpg'},
+  {pid:122,img:278,name:'Bauhaus Circles Print',h:'67d1c520fea3a4731316491c6ff08f9c.jpg'},
+  {pid:121,img:276,name:'Bauhaus Shapes Print',h:'0b48af6b4ece9c8e6b07a14034629f8f.jpg'},
+  {pid:120,img:273,name:'Kit Agar - Cherries Print',h:'13b907783ce4676230890118f2267e00.jpg'},
+  {pid:119,img:272,name:'Yuzu Fruit Market Print',h:'beb23b68693bcf4be7569ce6672b4178.jpg'},
+  {pid:118,img:270,name:'Cup of Espresso',h:'5829d8c9840a616ade06f52f773ce13d.jpg'},
+  {pid:117,img:268,name:'Caffeine and Confidence',h:'0c7128e668c4296482ebcfd7fbf920a8.jpg'},
+  {pid:116,img:265,name:'Linocut Koi Print',h:'e35a4c758a43bb0597ee216a7307857d.webp'},
+  {pid:115,img:264,name:'Catzilla Print',h:'be7ac00449834b2d18a7a720d36c9d34.jpg'},
+  {pid:114,img:262,name:'Hirondelles Print',h:'95a6c58cbd3be1ebfd3c06738b751612.jpg'},
+  {pid:113,img:260,name:'Birds Print',h:'fd329739b9027ade484c2b6d1cbace06.jpg'},
+  {pid:112,img:258,name:'The Judge Print',h:'6ecfc5b270c81b52ef33a1197d113487.jpg'},
+  {pid:111,img:255,name:'GRWM Print',h:'1828064fd618685b2b325783734246a4.webp'},
+  {pid:110,img:254,name:'Cat on Toilet',h:'d2b7e44b7e8bb31292d42c8304555001.jpg'},
+  {pid:109,img:252,name:'Galerie de la Colline',h:'47d775fc37054eca598b993a67660e46.jpg'},
+  {pid:108,img:250,name:'The Swans Print',h:'744c7cde5dfa9eda140cdef5461e9503.jpg'},
+  {pid:107,img:248,name:'Flightmode Print',h:'0cb1c476b1263c5186e52506b687df1e.jpg'},
+  {pid:106,img:246,name:'Night Rider Print',h:'ddba147eb4b9077c1044239ccaa23d19.webp'},
+  {pid:105,img:244,name:'On My Mind Print',h:'7a12f5467d22af95d800412e55ae2a42.jpg'},
+  {pid:104,img:241,name:'Stride Print',h:'1fda1dad23f912438bfb46c64b2d8243.jpg'},
+  {pid:103,img:240,name:'Not Our First Rodeo Print',h:'31fcc180f5fb73c055ec0e684d4ff04d.jpg'},
+  {pid:102,img:237,name:'Dogue No2 Print',h:'80babc275d585369ebc4a90f93c7c22e.webp'},
+  {pid:101,img:235,name:'Vintage Doggo Print',h:'b1614b9614f048526eb4ddde5b2d219e.webp'},
+  {pid:100,img:233,name:'Murmures',h:'24fa65170b080b4bd8de7047db63ad48.jpg'},
+  {pid:99,img:231,name:'Love is the Word',h:'1fed9dbc009bba6b4f68349b65418d43.jpg'},
+  {pid:98,img:229,name:'Wander Free',h:'54556f4a835b8f1602d01d133a7763ad.jpg'},
+  {pid:97,img:227,name:'Invested in You',h:'22ea0982364f067f09a5c19e914a7824.jpg'},
+  {pid:96,img:225,name:'Female Form 08',h:'a0cf10f2c9e17d7ae220b93f45287898.jpg'},
+  {pid:95,img:223,name:'Reminiscing',h:'a295a66d78145462dac769844294f80a.jpg'},
+  {pid:94,img:221,name:'Tra La La',h:'8ae0b1a571f5f06e10979664f536e846.jpg'},
+  {pid:93,img:219,name:'one + one = Three | Rouge',h:'bd147044142b2e70b86facebc7873a8d.jpg'},
+  {pid:92,img:217,name:'Ascension',h:'8581656baa304ae4592bbddfb275badf.jpg'},
+  {pid:91,img:215,name:'Zebra Coat',h:'050235053ea809df550b74d27ffeba69.jpg'},
+  {pid:90,img:213,name:'Lady in Purple',h:'96c55ba38751126d67d284a955b8a8bb.jpg'},
+  {pid:89,img:211,name:'Coco Noir',h:'6fed651aba64ac76cce4fad2ba0709e1.jpg'},
+  {pid:88,img:209,name:'Walking Unknown',h:'560a0f4281567f19312be9b0470abd46.jpg'},
+  {pid:87,img:207,name:'Le Tabouret #1',h:'a678339b5611343c223a49362020b3f5.jpg'},
+  {pid:86,img:205,name:'Tempo',h:'3a7ba3178f71927a4f4d10b2fb3f6b44.jpg'},
+  {pid:85,img:203,name:'Reminding You',h:'def3eae7fe5a7516fc9cfa5c3380ce2d.jpg'},
+  {pid:84,img:201,name:'Ciao',h:'267413617df82387c9feb53f01ea81f4.jpg'},
+  {pid:83,img:199,name:'Esther',h:'532756a079cad90105ae74f3f9297625.jpg'},
+  {pid:82,img:197,name:'Inside II',h:'a4a2a66ae4ad6aff13460f46ba7f06b1.jpg'},
+  {pid:81,img:195,name:'Third Eye',h:'8c0ef12320d5fbde42c5a63ed34778b6.jpg'},
+  {pid:80,img:193,name:'Chapeau Estival',h:'f5a443e0ef4ad048fce5d3f949a39480.jpg'},
+  {pid:79,img:192,name:'The Host',h:'7f04e8137b77f30e608ca3d9bbe9832f.jpg'},
+  {pid:78,img:189,name:'Too Late for Goodbyes',h:'10b09455e4dbe1338cbbf542eab80177.jpg'},
+  {pid:77,img:187,name:'Farmer',h:'b502b0e04bdd615f2c091932e945f5f1.jpg'},
+  {pid:76,img:186,name:'The Visionary',h:'8593ff444828e6f254cef6c7563841eb.jpg'},
+  {pid:75,img:183,name:'Aemilia',h:'19941a13e55d56252fbb427c58a41e1c.jpg'},
+  {pid:74,img:181,name:'Soon',h:'14e6b2b1ea4ecd1bd9f9c04cb4806172.jpg'},
+  {pid:73,img:179,name:'Chapeau de Seau',h:'4ef2ed6a183c28e4f91d1a5561879f47.jpg'},
+  {pid:72,img:177,name:'The Homeland That Walks',h:'bc0fa6a8a4015d44229150e0effba690.jpg'},
+  {pid:71,img:175,name:'Lady Jane',h:'7f9aaf7f9e085ac99a77b2ec711a042a.jpg'},
+  {pid:70,img:174,name:'Acrylic Garden No2 Print',h:'2dc9bdbc8f123abb1ed765d9b7ce7cb4.jpg'},
+  {pid:69,img:172,name:'Floating Flowers Print',h:'fd978497e356f6a12e9e79a673629745.webp'},
+  {pid:68,img:170,name:'Rustic Garden Portrait Print',h:'f7268ca890e471dbdc775f240f1e61b9.webp'},
+  {pid:67,img:167,name:'Out of Vase Blooms 6 Print',h:'e6b78e15dca82b5824d32887c3ccaf77.jpg'},
+  {pid:66,img:166,name:'Blue Vase Print',h:'ea182b66f976249d555df692f0475802.jpg'},
+  {pid:65,img:164,name:'Tulips Print',h:'f3e1f5073278f08c8c9c7527dfb47239.jpg'},
+  {pid:64,img:162,name:'Daffodils Print',h:'e4f9ceabe8ef56f4b8b9dca7a478ab3a.jpg'},
+  {pid:63,img:160,name:'No Rain. No Flowers Print',h:'92a12d8e16a9f29c8f11328949706bb9.jpg'},
+  {pid:62,img:157,name:'Floral Lines Print',h:'5403935fb8d8355f0f0eaebccd05031f.jpg'},
+  {pid:61,img:156,name:'Linocut Exhibition Print',h:'c8740c69e77871e283d33a5f899b7a49.jpg'},
+  {pid:60,img:154,name:'Rebecca Zwanzig of High West Wild - Paige Print',h:'727e0da5dda5bf40e1fc6ecca5a1a53d.jpg'},
+  {pid:59,img:151,name:'Flower on Green Print',h:'9f7f2ff9444d779b5a52ab506ad4c0bc.jpg'},
+  {pid:58,img:150,name:'Bouquet in Bloom Print',h:'65e3db78db17e871c7833bb7ec66a650.jpg'},
+  {pid:57,img:148,name:'Rachel Joanis - Vase With Flower in Gold Print',h:'b3ece869e53bf5e8afc7113040b8c298.jpg'},
+  {pid:56,img:146,name:'Emily Daborn - Joy of Living Print',h:'16abb0ba1faddd79b3d8b78f3195747b.jpg'},
+  {pid:55,img:144,name:'Flower Dress Print',h:'7421d1dbea71912f43059c3f39687daf.jpg'},
+  {pid:54,img:142,name:'William Morris - Cray Print',h:'f2cfd2751153d6af5d95ac38e712032f.webp'},
+  {pid:53,img:140,name:'Leigh Viner - Collide Print',h:'07b7dd5fc30301dd73753741192b3419.jpg'},
+  {pid:52,img:138,name:'Hanagasumi Print',h:'b423a0a5343e164fa8e277facd0e67ae.jpg'},
+  {pid:51,img:135,name:'Paper Poppies Print',h:'1ffddb56c1f3191feccea49b63e13ee3.jpg'},
+  {pid:50,img:134,name:'Zen Curves No2 Print',h:'761f5ce1a8b948aa3abeda82a2f63c14.webp'},
+  {pid:49,img:132,name:'Ink Texture Print',h:'1937789d39fa13b7e76e08a736bae4b5.jpg'},
+  {pid:48,img:129,name:'Midnight Reef Print',h:'790cf11ce1c46b0e3a2be4ddca521cd3.jpg'},
+  {pid:47,img:127,name:'Drifter Print',h:'a471d1da8ea6152d15faca5833da1c54.webp'},
+  {pid:46,img:126,name:'Simple Lines No2 Print',h:'30bbde510033ae61a6565a9546892217.jpg'},
+  {pid:45,img:124,name:'Texture Line Curve Print',h:'ee3b15b8fbe6b18c8a013c35e9290ff4.jpg'},
+  {pid:44,img:121,name:'Figures on the Horizon No2 Print',h:'422ac0a4e0384228b6b8cb8eb743fcae.webp'},
+  {pid:43,img:120,name:'Figures on the Horizon No1 Print',h:'f3bb2f58609013e8f289965e69ccd52e.webp'},
+  {pid:42,img:118,name:'Graphic Lamp Print',h:'f771f8d9ee76ac8e07fac2d030019658.jpg'},
+  {pid:41,img:116,name:'Ink Touch No2 Print',h:'d4c7daee8af4cade402cced0fca56831.jpg'},
+  {pid:40,img:113,name:'Kids Letter M Personal',h:'c1bd431444196e2f25cac80349b955db.jpg'},
+  {pid:39,img:112,name:'Waves in Line Print',h:'123e76fce45e904840c4401e4e32abeb.webp'},
+  {pid:38,img:110,name:'Rustic Geometry No2 Print',h:'4d5047ae069f2317720a972ca34301bf.webp'},
+  {pid:37,img:106,name:'Colourful Abstract Print',h:'d12bfd510e104b1bf5c6f2764eccf400.jpg'},
+  {pid:36,img:103,name:'زن – طراحی خطی',h:'d640a5af22f56646255d5cb75e2486f1.jpg'},
+  {pid:35,img:102,name:'لباس گل‌دار',h:'84da12c59acf5224adfd217db03962d0.webp'},
+  {pid:34,img:100,name:'بوسه – طراحی خطی',h:'77ada3dd0d401cbc6857ed3b982eaab8.jpg'},
+  {pid:33,img:97,name:'اگون شیله – پوستر پرتره یک زن',h:'9f69a7e25c17e2dcebb115bead971b94.webp'},
+  {pid:26,img:64,name:'Whispers of the Sea Print',h:'d6694915725e5844523e515b233cb8ff.jpg'},
+  {pid:25,img:61,name:'Silja-Marie Kentsdottir - Hesja Print',h:'82afa2af5781bba59e2421fd69e8e366.webp'},
+  {pid:24,img:60,name:'Sylvia Takken - In Bloom 2.0 Print',h:'1a8d8bf7e01f79401804934b0dd27abc.jpg'},
+  {pid:23,img:58,name:'Le Jardin No1 Print',h:'b71e841d112c71f45b59e526838f7dc8.jpg'},
+  {pid:22,img:56,name:'Cin Cin Print',h:'6faba9952a52d5b87b2aa39fe1746eee.jpg'},
+  {pid:21,img:54,name:'Coffee Still Life Print',h:'c4da434e1ebbf1d8327d4645e4ef6235.jpg'},
+  {pid:20,img:51,name:'Yes Chef Print',h:'d00294b106140f6a135109ee5f9ca92f.jpg'},
+  {pid:19,img:50,name:'Ekaterina Zagorska - Luxury Dinner Canvas print',h:'25a253b7bd7b5d30020d901b1080eaf3.jpg'},
+  {pid:18,img:48,name:'Marco Marella - Negroni Print',h:'7ccc106262be795650e2b5d8764d82c2.jpg'},
+  {pid:17,img:46,name:'Maarten Leon - Holiday in a Glass No1 Print',h:'571520a78a0518b88276a36b73ac6b5b.jpg'},
+  {pid:16,img:44,name:'Caffè Cornetto Print',h:'76efb2f57c0cdfc947cf747f8117c6f6.jpg'},
+  {pid:15,img:41,name:'Pizza Pasta Vino Print',h:'e47ed88b41008f07121474ea0bab887e.jpg'},
+  {pid:14,img:31,name:'Matisse - Open Window Print',h:'1e2a32f020f66575692f679586964b83.jpg'},
+  {pid:13,img:29,name:'Matisse - The Plane Tree Print',h:'092beee2b5bebfe732c71bd40840f557.jpg'},
+  {pid:12,img:27,name:'William Morris - African Marigold Print',h:'5e23746daf41ed1622b83e646c5a482f.webp'},
+  {pid:11,img:25,name:'Hokusai - The Great Wave Landscape Print',h:'5938bfc47635991e25d8a7fc95278f2c.jpg'},
+  {pid:10,img:23,name:'Bauhaus Design Swirls Print',h:'36862c613c7cdfa5b1a32b6a882c56df.jpg'},
+  {pid:9,img:21,name:'Matisse - Blue Nude II Print',h:'1cf0c09190d1bc3d54c9d236bcaf1ed8.jpg'},
+  {pid:8,img:18,name:'Kamisaka Sekka - A Thousand Grasses Pl.09 Print',h:'7ccc2750b5ee2d5512a2474ae6f22ef2.webp'},
+  {pid:7,img:17,name:'William Morris - Willow Bough Landscape Print',h:'577dae9a9a8ea2b83dca401a1e799a43.jpg'},
+  {pid:6,img:14,name:'Paul Ranson - Tiger in the Jungle Print',h:'f19a4fb3cd6c413d7da1a0334ae81c63.webp'},
+  {pid:5,img:12,name:'Monet - Étretat- The Beach and the Falaise d\'Amont Print',h:'22cb713fc0c57cfd8245364f153f0738.webp'},
+  {pid:4,img:10,name:'Utagawa Kuniyoshi - Fuji no Yukei Print',h:'1a7931e43267c2efe3066bc897b37c5b.webp'},
+  {pid:3,img:8,name:'Van Gogh - Garden at Arles Print',h:'f9f2ba935dfd1545e88aa44bc2f75daa.webp'},
+  {pid:2,img:6,name:'Van Gogh - River Bank in Springtime Print',h:'794da17bddebb201086f7796bd780911.webp'},
+  {pid:1,img:2,name:'William Morris - Acanthus Portière Poster',h:'096260a684215779de47ca2d6cedfba0.webp'}
+].map(function(a){
+    a.id = "p"+a.pid;
+    a.title = a.artist ? (a.name+" — "+a.artist) : a.name;
+    a.src = "https://oss.sazito.com/apiuploads/shogungallery/uploads/image/rootimage/"+a.img+"/"+(a.h||REAL_ART_HASH);
+    return a;
+  });
+
+  /* ---------- state ---------- */
+  var frames = [];
+  var selectedId = null;
+  var idSeed = 1, zSeed = 1;
+  var wallWidthCm = 300;
+  var roomNaturalW = 1600, roomNaturalH = 1067;
+  var roomIsCustom = false;
+  var roomDataUrl = null; // for export
+  var activeArtForAdd = REAL_ART[0];
+
+  var stage = document.getElementById("stage");
+  var sampleTag = document.getElementById("sampleTag");
+  var stageShell = document.getElementById("stageShell");
+  var fsToggleBtn = document.getElementById("fsToggleBtn");
+
+  /* ---------- fullscreen stage (mainly for small phone screens) ---------- */
+  var fsIconExpand = fsToggleBtn.innerHTML;
+  var fsIconCollapse = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v3a2 2 0 0 1-2 2H4"/><path d="M15 3v3a2 2 0 0 0 2 2h3"/><path d="M9 21v-3a2 2 0 0 0-2-2H4"/><path d="M15 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+  function setStageFullscreen(on){
+    stageShell.classList.toggle("fs", on);
+    document.body.classList.toggle("stage-fs-open", on);
+    fsToggleBtn.innerHTML = on ? fsIconCollapse : fsIconExpand;
+    fsToggleBtn.title = on ? "بستن حالت تمام‌صفحه" : "بزرگ‌نمایی تمام‌صفحه";
+    if(on){
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var ratio = roomNaturalW / roomNaturalH;
+      var w, h;
+      if(vw / vh > ratio){ h = vh; w = vh * ratio; }
+      else { w = vw; h = vw / ratio; }
+      stage.style.width = w + "px";
+      stage.style.height = h + "px";
+    } else {
+      stage.style.width = "";
+      stage.style.height = "";
+    }
+    requestAnimationFrame(function(){ render(); });
+  }
+  fsToggleBtn.addEventListener("click", function(){
+    setStageFullscreen(!stageShell.classList.contains("fs"));
+  });
+  document.addEventListener("keydown", function(ev){
+    if(ev.key==="Escape" && stageShell.classList.contains("fs")) setStageFullscreen(false);
+  });
+
+  /* keep frame pixel sizes in sync with the stage's actual rendered width
+     (it changes on rotation, window resize, and fullscreen toggle) */
+  var resizeTimer = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if(stageShell.classList.contains("fs")) setStageFullscreen(true);
+      else render();
+    }, 120);
+  });
+
+  /* default sample room = simple illustrated wall (SVG) */
+  var SAMPLE_ROOM = (function(){
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1067">' +
+      '<rect width="1600" height="1067" fill="#e9e1cd"/>' +
+      '<rect y="760" width="1600" height="307" fill="#cdbfa0"/>' +
+      '<rect y="750" width="1600" height="14" fill="#b9a980"/>' +
+      '<rect x="0" y="0" width="1600" height="30" fill="#00000008"/>' +
+      '</svg>';
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  })();
+  setRoomImage(SAMPLE_ROOM, 1600, 1067, false);
+
+  /* URL params for integration (?img=&title=) */
+  var params = new URLSearchParams(location.search);
+  var qImg = params.get("img");
+  var qTitle = params.get("title");
+
+  /* ---------- helpers ---------- */
+  function uid(){ return "f" + (idSeed++); }
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+  function pxPerCmForStage(){
+    var rect = stage.getBoundingClientRect();
+    return rect.width / wallWidthCm;
+  }
+
+  function setRoomImage(src, natW, natH, isCustom){
+    roomDataUrl = src;
+    roomNaturalW = natW; roomNaturalH = natH; roomIsCustom = isCustom;
+    stage.style.aspectRatio = natW + " / " + natH;
+    stage.style.backgroundImage = "url('" + src + "')";
+    sampleTag.hidden = !!isCustom;
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var nodes = stage.querySelectorAll(".frame");
+    nodes.forEach(function(n){ n.remove(); });
+
+    frames.slice().sort(function(a,b){return a.z-b.z;}).forEach(function(f){
+      var pxPerCm = pxPerCmForStage();
+      var wPx = f.wCm * pxPerCm, hPx = f.hCm * pxPerCm;
+      var el = document.createElement("div");
+      el.className = "frame" + (f.id===selectedId ? " selected" : "");
+      el.style.left = f.xPct + "%";
+      el.style.top = f.yPct + "%";
+      el.style.width = wPx + "px";
+      el.style.height = hPx + "px";
+      el.style.zIndex = f.z;
+      el.style.transform = "translate(-50%,-50%) rotate(" + f.rot + "deg)";
+      el.dataset.id = f.id;
+
+      var m = mat(f.matKey);
+      var matDiv = document.createElement("div");
+      matDiv.className = "mat";
+      matDiv.style.background = matBackgroundCSS(m);
+
+      var artDiv = document.createElement("div");
+      artDiv.className = "art";
+      var imgEl = document.createElement("img");
+      imgEl.src = f.src;
+      imgEl.draggable = false;
+      artDiv.appendChild(imgEl);
+      matDiv.appendChild(artDiv);
+      el.appendChild(matDiv);
+
+      var hRot = document.createElement("div");
+      hRot.className = "handle handle-rotate"; hRot.title = "چرخش";
+      hRot.innerHTML = "&#8635;";
+      var hResize = document.createElement("div");
+      hResize.className = "handle handle-resize"; hResize.title = "تغییر اندازه";
+      hResize.innerHTML = "&#8599;";
+      var hDel = document.createElement("div");
+      hDel.className = "handle handle-delete"; hDel.title = "حذف";
+      hDel.innerHTML = "&times;";
+
+      el.appendChild(hRot);
+      el.appendChild(hResize);
+      el.appendChild(hDel);
+
+      stage.appendChild(el);
+
+      el.addEventListener("pointerdown", function(ev){
+        if(ev.target===hRot || ev.target===hResize || ev.target===hDel) return;
+        selectFrame(f.id);
+        startMove(ev, f);
+      });
+      hRot.addEventListener("pointerdown", function(ev){ ev.stopPropagation(); selectFrame(f.id); startRotate(ev, f); });
+      hResize.addEventListener("pointerdown", function(ev){ ev.stopPropagation(); selectFrame(f.id); startResize(ev, f); });
+      hDel.addEventListener("pointerdown", function(ev){ ev.stopPropagation(); });
+      hDel.addEventListener("click", function(ev){ ev.stopPropagation(); deleteFrame(f.id); });
+    });
+
+    renderSidePanel();
+    document.getElementById("dupBtn").disabled = !selectedId;
+    document.getElementById("frontBtn").disabled = !selectedId;
+    document.getElementById("delBtn").disabled = !selectedId;
+  }
+
+  function selectFrame(id){ selectedId = id; render(); }
+
+  /* ---------- pointer interactions ---------- */
+  function startMove(ev, f){
+    var rect = stage.getBoundingClientRect();
+    var startX=ev.clientX, startY=ev.clientY;
+    var startXPct=f.xPct, startYPct=f.yPct;
+    try{ ev.target.setPointerCapture && ev.target.setPointerCapture(ev.pointerId); }catch(err){}
+    function move(e){
+      var dx = e.clientX-startX, dy=e.clientY-startY;
+      f.xPct = clamp(startXPct + (dx/rect.width)*100, 0, 100);
+      f.yPct = clamp(startYPct + (dy/rect.height)*100, 0, 100);
+      render();
+    }
+    function up(){ document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); }
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+  }
+
+  function startResize(ev, f){
+    var startX=ev.clientX, startY=ev.clientY;
+    var startW=f.wCm, startH=f.hCm;
+    var ratio = startH/startW;
+    function move(e){
+      var pxPerCm = pxPerCmForStage();
+      var dx = (e.clientX-startX)/pxPerCm;
+      var newW = clamp(startW+dx, 15, 250);
+      f.wCm = newW; f.hCm = clamp(newW*ratio,15,250);
+      render();
+    }
+    function up(){ document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); }
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+  }
+
+  function startRotate(ev, f){
+    var el = stage.querySelector('.frame[data-id="'+f.id+'"]');
+    function angleFor(e){
+      var r = el.getBoundingClientRect();
+      var cx = r.left + r.width/2, cy = r.top + r.height/2;
+      var a = Math.atan2(e.clientY-cy, e.clientX-cx) * 180/Math.PI;
+      return a + 90;
+    }
+    function move(e){
+      f.rot = clamp(Math.round(angleFor(e)), -45, 45);
+      render();
+    }
+    function up(){ document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); }
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+  }
+
+  stage.addEventListener("pointerdown", function(ev){
+    if(ev.target===stage){ selectedId=null; render(); }
+  });
+
+  /* ---------- frame CRUD ---------- */
+  function addFrame(art, opts){
+    opts = opts || {};
+    var count = frames.length;
+    var f = {
+      id: uid(),
+      z: zSeed++,
+      title: art.title,
+      src: art.src,
+      matKey: "light",
+      wCm: opts.wCm || 50,
+      hCm: opts.hCm || 70,
+      rot: 0,
+      xPct: clamp(45 + (count%4)*6, 5, 95),
+      yPct: clamp(42 + (count%3)*6, 5, 95)
+    };
+    frames.push(f);
+    selectedId = f.id;
+    render();
+  }
+
+  function deleteFrame(id){
+    frames = frames.filter(function(f){ return f.id!==id; });
+    if(selectedId===id) selectedId = null;
+    render();
+  }
+
+  function getSelected(){ for(var i=0;i<frames.length;i++){ if(frames[i].id===selectedId) return frames[i]; } return null; }
+
+  /* ---------- artwork gallery ---------- */
+  var artGrid = document.getElementById("artGrid");
+  var artSearchInput = document.getElementById("artSearch");
+  function buildArtGrid(filter){
+    var f = (filter||"").trim().toLowerCase();
+    artGrid.innerHTML = "";
+    var list = !f ? REAL_ART : REAL_ART.filter(function(a){
+      return a.name.toLowerCase().indexOf(f)>=0 || (a.artist||"").toLowerCase().indexOf(f)>=0;
+    });
+    if(list.length===0){
+      artGrid.innerHTML = '<div class="empty-note" style="grid-column:1/-1;">تابلویی با این نام پیدا نشد</div>';
+      return;
+    }
+    list.forEach(function(art){
+      var card = document.createElement("div");
+      card.className = "art-card";
+      card.innerHTML = '<div class="thumb"><img src="'+art.src+'" alt="'+art.name+'" loading="lazy"></div>'+
+        '<div class="lbl">'+art.name+(art.artist?'<span class="artist">'+art.artist+'</span>':'')+'</div>';
+      card.addEventListener("click", function(){ useArtwork(art); });
+      artGrid.appendChild(card);
+    });
+  }
+  buildArtGrid();
+  if(artSearchInput){
+    artSearchInput.addEventListener("input", function(){ buildArtGrid(artSearchInput.value); });
+  }
+
+  function useArtwork(art){
+    activeArtForAdd = art;
+    var sel = getSelected();
+    if(sel){ sel.title = art.title; sel.src = art.src; render(); }
+    else { addFrame(art); }
+  }
+
+  document.getElementById("artDropzone").addEventListener("click", function(){ document.getElementById("artInput").click(); });
+  document.getElementById("artInput").addEventListener("change", function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var art = {title:"تابلوی من", src: reader.result};
+      useArtwork(art);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  });
+
+  document.getElementById("artUrlBtn").addEventListener("click", function(){
+    var input = document.getElementById("artUrl");
+    var url = input.value.trim();
+    if(!url) return;
+    useArtwork({title:"تابلوی لینک‌شده", src:url});
+  });
+
+  /* ---------- room upload ---------- */
+  var dropzone = document.getElementById("dropzone");
+  var roomInput = document.getElementById("roomInput");
+  dropzone.addEventListener("click", function(){ roomInput.click(); });
+  ["dragover","dragenter"].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){ e.preventDefault(); dropzone.classList.add("drag"); });
+  });
+  ["dragleave","drop"].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){ e.preventDefault(); dropzone.classList.remove("drag"); });
+  });
+  dropzone.addEventListener("drop", function(e){
+    var file = e.dataTransfer.files[0]; if(file) handleRoomFile(file);
+  });
+  roomInput.addEventListener("change", function(e){
+    var file = e.target.files[0]; if(file) handleRoomFile(file);
+    e.target.value = "";
+  });
+  function handleRoomFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        setRoomImage(reader.result, img.naturalWidth, img.naturalHeight, true);
+        render();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById("wallWidth").addEventListener("input", function(e){
+    wallWidthCm = clamp(parseFloat(e.target.value)||300, 50, 2000);
+    render();
+  });
+
+  /* ---------- side panel (selected frame) ---------- */
+  var noSelection = document.getElementById("noSelection");
+  var selectionFields = document.getElementById("selectionFields");
+  var fTitle = document.getElementById("fTitle");
+  var fW = document.getElementById("fW");
+  var fH = document.getElementById("fH");
+  var fRot = document.getElementById("fRot");
+  var rotVal = document.getElementById("rotVal");
+  var fSizePreset = document.getElementById("fSizePreset");
+  var matSwatches = document.getElementById("matSwatches");
+  var orientBtns = document.querySelectorAll("#orientToggle .orient-btn");
+
+  SIZE_PRESETS.forEach(function(p,i){
+    var o = document.createElement("option");
+    o.value = i; o.textContent = p.label;
+    fSizePreset.appendChild(o);
+  });
+  MATERIALS.forEach(function(m){
+    var sw = document.createElement("div");
+    sw.className = "swatch";
+    sw.style.background = matBackgroundCSS(m);
+    sw.title = m.label;
+    sw.addEventListener("click", function(){
+      var sel = getSelected(); if(!sel) return;
+      sel.matKey = m.key; render();
+    });
+    matSwatches.appendChild(sw);
+  });
+
+  function renderSidePanel(){
+    var sel = getSelected();
+    if(!sel){
+      noSelection.hidden = false;
+      selectionFields.hidden = true;
+      return;
+    }
+    noSelection.hidden = true;
+    selectionFields.hidden = false;
+
+    fTitle.value = sel.title;
+    fW.value = Math.round(sel.wCm);
+    fH.value = Math.round(sel.hCm);
+    fRot.value = sel.rot;
+    rotVal.textContent = sel.rot;
+
+    Array.prototype.forEach.call(matSwatches.children, function(sw, i){
+      sw.classList.toggle("active", MATERIALS[i].key===sel.matKey);
+    });
+
+    var matched = -1;
+    SIZE_PRESETS.forEach(function(p,i){ if(p.w===sel.wCm && p.h===sel.hCm) matched=i; });
+    fSizePreset.value = matched>=0 ? matched : SIZE_PRESETS.length-1;
+
+    var isPortrait = sel.hCm > sel.wCm;
+    Array.prototype.forEach.call(orientBtns, function(btn){
+      btn.classList.toggle("active", (btn.dataset.orient==="portrait") === isPortrait);
+    });
+  }
+
+  fTitle.addEventListener("input", function(){ var sel=getSelected(); if(sel){ sel.title=fTitle.value; } });
+  fW.addEventListener("input", function(){ var sel=getSelected(); if(sel){ sel.wCm=clamp(parseFloat(fW.value)||sel.wCm,15,250); render(); } });
+  fH.addEventListener("input", function(){ var sel=getSelected(); if(sel){ sel.hCm=clamp(parseFloat(fH.value)||sel.hCm,15,250); render(); } });
+  fRot.addEventListener("input", function(){ var sel=getSelected(); if(sel){ sel.rot=parseInt(fRot.value,10); rotVal.textContent=sel.rot; render(); } });
+  fSizePreset.addEventListener("change", function(){
+    var sel = getSelected(); if(!sel) return;
+    var p = SIZE_PRESETS[parseInt(fSizePreset.value,10)];
+    if(p.w){ sel.wCm=p.w; sel.hCm=p.h; render(); }
+  });
+
+  Array.prototype.forEach.call(orientBtns, function(btn){
+    btn.addEventListener("click", function(){
+      var sel = getSelected(); if(!sel) return;
+      var wantPortrait = btn.dataset.orient === "portrait";
+      var isPortrait = sel.hCm > sel.wCm;
+      if(wantPortrait === isPortrait) return; // already in that orientation
+      var tmp = sel.wCm; sel.wCm = sel.hCm; sel.hCm = tmp;
+      fW.value = Math.round(sel.wCm);
+      fH.value = Math.round(sel.hCm);
+      render();
+      renderSidePanel();
+    });
+  });
+
+  /* ---------- toolbar actions ---------- */
+  document.getElementById("addFrameBtn").addEventListener("click", function(){ addFrame(activeArtForAdd); });
+  document.getElementById("dupBtn").addEventListener("click", function(){
+    var sel = getSelected(); if(!sel) return;
+    var copy = Object.assign({}, sel, {id:uid(), z:zSeed++, xPct:clamp(sel.xPct+5,0,100), yPct:clamp(sel.yPct+5,0,100)});
+    frames.push(copy); selectedId = copy.id; render();
+  });
+  document.getElementById("frontBtn").addEventListener("click", function(){
+    var sel = getSelected(); if(!sel) return; sel.z = zSeed++; render();
+  });
+  document.getElementById("delBtn").addEventListener("click", function(){ if(selectedId) deleteFrame(selectedId); });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    frames = []; selectedId = null;
+    setRoomImage(SAMPLE_ROOM, 1600, 1067, false);
+    document.getElementById("wallWidth").value = 300; wallWidthCm = 300;
+    render();
+  });
+
+  /* ---------- export ---------- */
+  var exportBtn = document.getElementById("exportBtn");
+  var exportToast = document.getElementById("exportToast");
+  var previewWrap = document.getElementById("previewWrap");
+  var previewImg = document.getElementById("previewImg");
+
+  function loadImage(src){
+    return new Promise(function(resolve,reject){
+      var img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function(){ resolve(img); };
+      img.onerror = function(){ reject(new Error("load-failed")); };
+      img.src = src;
+    });
+  }
+
+  exportBtn.addEventListener("click", function(){
+    exportToast.textContent = "در حال ساخت تصویر...";
+    var canvas = document.createElement("canvas");
+    canvas.width = roomNaturalW; canvas.height = roomNaturalH;
+    var ctx = canvas.getContext("2d");
+
+    var tainted = false;
+
+    loadImage(roomDataUrl).then(function(roomImg){
+      ctx.drawImage(roomImg, 0, 0, roomNaturalW, roomNaturalH);
+      var canvasPxPerCm = roomNaturalW / wallWidthCm;
+      var ordered = frames.slice().sort(function(a,b){return a.z-b.z;});
+
+      var chain = Promise.resolve();
+      ordered.forEach(function(f){
+        chain = chain.then(function(){
+          return loadImage(f.src).catch(function(){ tainted = true; return null; }).then(function(img){
+            var wPx = f.wCm*canvasPxPerCm, hPx = f.hCm*canvasPxPerCm;
+            var cx = (f.xPct/100)*roomNaturalW, cy=(f.yPct/100)*roomNaturalH;
+            var m = mat(f.matKey);
+            var border = Math.max(wPx,hPx)*0.045;
+            ctx.save();
+            ctx.translate(cx,cy);
+            ctx.rotate(f.rot*Math.PI/180);
+
+            var ox = -wPx/2-border, oy = -hPx/2-border, ow = wPx+2*border, oh = hPx+2*border;
+
+            ctx.save();
+            ctx.shadowColor = "rgba(0,0,0,0.35)";
+            ctx.shadowBlur = Math.max(wPx,hPx)*0.08;
+            ctx.shadowOffsetY = hPx*0.04;
+            var grad = ctx.createLinearGradient(ox,oy,wPx/2+border,hPx/2+border);
+            grad.addColorStop(0,m.c1); grad.addColorStop(0.55,m.c2); grad.addColorStop(1,m.c3);
+            ctx.fillStyle = grad;
+            ctx.fillRect(ox, oy, ow, oh);
+            ctx.restore();
+
+            /* wood grain / metal sheen texture, clipped to the frame ring only */
+            if(m.grain || m.metal){
+              ctx.save();
+              var ringPath = new Path2D();
+              ringPath.rect(ox, oy, ow, oh);
+              ringPath.rect(-wPx/2, -hPx/2, wPx, hPx);
+              ctx.clip(ringPath, "evenodd");
+              if(m.grain){
+                var diag = Math.sqrt(ow*ow+oh*oh);
+                var spacing = Math.max(2.2, border*0.28);
+                ctx.save();
+                ctx.rotate(9*Math.PI/180);
+                ctx.lineWidth = Math.max(0.6, border*0.05);
+                for(var gx=-diag; gx<diag; gx+=spacing){
+                  ctx.strokeStyle = (Math.round(gx/spacing)%2===0) ? "rgba(0,0,0,0.09)" : "rgba(255,255,255,0.07)";
+                  ctx.beginPath();
+                  ctx.moveTo(gx,-diag); ctx.lineTo(gx,diag);
+                  ctx.stroke();
+                }
+                ctx.restore();
+              }
+              if(m.metal){
+                var sheen = ctx.createLinearGradient(ox,oy,ow*0.6+ox,oh*0.6+oy);
+                sheen.addColorStop(0,"rgba(255,255,255,0.55)");
+                sheen.addColorStop(0.22,"rgba(255,255,255,0)");
+                sheen.addColorStop(0.62,"rgba(255,255,255,0)");
+                sheen.addColorStop(0.8,"rgba(255,255,255,0.32)");
+                sheen.addColorStop(1,"rgba(255,255,255,0)");
+                ctx.fillStyle = sheen;
+                ctx.fillRect(ox,oy,ow,oh);
+              }
+              ctx.restore();
+            }
+
+            ctx.fillStyle = "#f8f4e9";
+            ctx.fillRect(-wPx/2, -hPx/2, wPx, hPx);
+
+            /* subtle bevel so the border reads as 3D moulding, not a flat fill */
+            ctx.save();
+            var innerLW = Math.max(1, border*0.08);
+            ctx.strokeStyle = "rgba(0,0,0,0.32)";
+            ctx.lineWidth = innerLW;
+            ctx.strokeRect(-wPx/2+innerLW/2, -hPx/2+innerLW/2, wPx-innerLW, hPx-innerLW);
+            var outerLW = Math.max(1, border*0.05);
+            ctx.strokeStyle = "rgba(255,255,255,0.3)";
+            ctx.lineWidth = outerLW;
+            ctx.strokeRect(ox+outerLW/2, oy+outerLW/2, ow-outerLW, oh-outerLW);
+            ctx.restore();
+
+            if(img){
+              var pad = Math.min(wPx,hPx)*0.06;
+              var iw = wPx-2*pad, ih = hPx-2*pad;
+              var scale = Math.min(iw/img.naturalWidth, ih/img.naturalHeight);
+              var dw = img.naturalWidth*scale, dh = img.naturalHeight*scale;
+              try{
+                ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
+              }catch(e){ tainted = true; }
+            }
+            ctx.restore();
+          });
+        });
+      });
+
+      return chain;
+    }).then(function(){
+      var mime = "image/png";
+      canvas.toBlob(function(blob){
+        if(!blob){
+          exportToast.textContent = "ساخت تصویر ناموفق بود. دوباره تلاش کن.";
+          return;
+        }
+        var url = URL.createObjectURL(blob);
+        previewImg.src = url;
+        previewWrap.hidden = false;
+
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "shogun-gallery-wall-preview.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        exportToast.textContent = "تصویر دانلود شد.";
+      }, mime);
+    }).catch(function(){
+      exportToast.textContent = "مشکلی در ساخت تصویر پیش اومد. عکس دیوار رو دوباره آپلود کن و امتحان کن.";
+    });
+  });
+
+  /* ---------- init: URL-driven preload + default sample frame ---------- */
+  if(qImg){
+    addFrame({title: qTitle || "تابلوی انتخابی", src: qImg});
+  } else {
+    addFrame(REAL_ART[0], {wCm:50, hCm:70});
+  }
+
+})();
+</script>
+</body>
+</html>
