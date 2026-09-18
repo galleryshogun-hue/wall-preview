@@ -236,7 +236,8 @@
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
   }
   .frame .art img,.frame .art svg{
-    width:100%;height:100%;object-fit:contain;display:block;
+    width:100%;height:100%;object-fit:cover;display:block;
+    transform:scale(1.42);transform-origin:center;
   }
   .frame.selected{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px;}
   .frame .handle{
@@ -1649,11 +1650,17 @@
             if(img){
               var pad = Math.min(wPx,hPx)*0.06;
               var iw = wPx-2*pad, ih = hPx-2*pad;
-              var scale = Math.min(iw/img.naturalWidth, ih/img.naturalHeight);
+              var zoom = 1.42;
+              var scale = Math.max(iw/img.naturalWidth, ih/img.naturalHeight) * zoom;
               var dw = img.naturalWidth*scale, dh = img.naturalHeight*scale;
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(-iw/2, -ih/2, iw, ih);
+              ctx.clip();
               try{
                 ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
               }catch(e){ tainted = true; }
+              ctx.restore();
             }
             ctx.restore();
           });
