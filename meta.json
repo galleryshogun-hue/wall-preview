@@ -1,0 +1,6 @@
+{
+  "productCount": 510,
+  "categoryId": 4,
+  "lastSync": "2026-09-18",
+  "note": "productCount is the baseline count of products in Sazito category id=4 (کالکشن) as of the last time REAL_ART in index.html was regenerated. A scheduled check compares the live total_count to this value; a growth of 20 or more triggers a resync."
+}
