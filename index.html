@@ -3482,17 +3482,34 @@
   /* ---------- artwork gallery ---------- */
   var artGrid = document.getElementById("artGrid");
   var artSearchInput = document.getElementById("artSearch");
+  /* With 2600+ products, rendering every card (and its <img>) at once
+     overwhelms the browser (thousands of simultaneous lazy-load
+     candidates), so thumbnails end up half-loaded and never fill their
+     box. Render in small batches instead, with a "show more" button,
+     same as before at 510 items but now safe at any catalogue size. */
+  var ART_PAGE_SIZE = 60;
+  var artGridState = { list: [], shown: 0 };
+
   function buildArtGrid(filter){
     var f = (filter||"").trim().toLowerCase();
-    artGrid.innerHTML = "";
     var list = !f ? REAL_ART : REAL_ART.filter(function(a){
       return a.name.toLowerCase().indexOf(f)>=0 || (a.artist||"").toLowerCase().indexOf(f)>=0;
     });
+    artGrid.innerHTML = "";
+    artGridState = { list: list, shown: 0 };
     if(list.length===0){
       artGrid.innerHTML = '<div class="empty-note" style="grid-column:1/-1;">تابلویی با این نام پیدا نشد</div>';
       return;
     }
-    list.forEach(function(art){
+    renderMoreArt();
+  }
+
+  function renderMoreArt(){
+    var state = artGridState;
+    var oldBtn = artGrid.querySelector(".art-more-btn");
+    if(oldBtn) oldBtn.remove();
+    var next = state.list.slice(state.shown, state.shown + ART_PAGE_SIZE);
+    next.forEach(function(art){
       var card = document.createElement("div");
       card.className = "art-card";
       card.innerHTML = '<div class="thumb"><img src="'+art.src+'" alt="'+art.name+'" loading="lazy"></div>'+
@@ -3500,6 +3517,17 @@
       card.addEventListener("click", function(){ useArtwork(art); });
       artGrid.appendChild(card);
     });
+    state.shown += next.length;
+    if(state.shown < state.list.length){
+      var moreBtn = document.createElement("button");
+      moreBtn.type = "button";
+      moreBtn.className = "art-more-btn";
+      moreBtn.style.gridColumn = "1/-1";
+      moreBtn.style.marginTop = "4px";
+      moreBtn.textContent = "نمایش بیشتر (" + (state.list.length - state.shown) + " تابلوی دیگر)";
+      moreBtn.addEventListener("click", renderMoreArt);
+      artGrid.appendChild(moreBtn);
+    }
   }
   buildArtGrid();
   if(artSearchInput){
