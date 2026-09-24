@@ -3551,7 +3551,7 @@
     next.forEach(function(art){
       var card = document.createElement("div");
       card.className = "art-card";
-      card.innerHTML = '<div class="thumb">'+artImgHTML(art.src, art.c, art.a, 400, art.name)+'</div>'+
+      card.innerHTML = '<div class="thumb">'+artImgHTML(art.src, art.c, art.a, 360, art.name)+'</div>'+
         '<div class="lbl">'+art.name+(art.artist?'<span class="artist">'+art.artist+'</span>':'')+'</div>';
       card.addEventListener("click", function(){ useArtwork(art); });
       artGrid.appendChild(card);
